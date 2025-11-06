@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crop Info & Farmer Guide</title>
+<style>
+  body { font-family: Arial, sans-serif; padding: 20px; background: #e2f5d7; }
+  h1, h2 { text-align: center; color: #2e7d32; }
+  .flex-row { display: flex; justify-content: center; align-items: center; gap: 20px; flex-wrap: wrap; }
+  .filters, .language-switch { margin-bottom: 20px; text-align: center; }
+  select, button { padding: 8px 12px; border-radius: 5px; border: 1px solid #ccc; cursor: pointer; }
+  button:hover { background: #1b5e20; color: #fff; }
+  .crop-container { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; }
+  .crop-card { border: 1px solid #ccc; border-radius: 8px; padding: 10px; width: 200px; text-align: center; background: #f9fff4; cursor: pointer; transition: transform 0.2s; }
+  .crop-card:hover { transform: scale(1.05); }
+  .crop-card img { width: 100%; height: 120px; object-fit: cover; border-radius: 5px; }
+  .crop-details { margin-top: 30px; text-align: center; }
+  p { margin: 5px 0; }
+</style>
+</head>
+<body>
+
+<h1 id="mainTitle">Crop Info & Farmer Guide | କୃଷି ତଥ୍ୟ ଏବଂ ଗାଇଡ୍</h1>
+
+<div class="flex-row">
+  <div class="filters">
+    <label for="seasonFilter" id="seasonLabel">Filter by Season / ଋତୁ ଅନୁଯାୟୀ ଚୟନ:</label>
+    <select id="seasonFilter">
+      <option value="all">All / ସମସ୍ତ</option>
+      <option value="rabi">Winter / ଶୀତ</option>
+      <option value="kharif">Rainy / ବର୍ଷା</option>
+      <option value="summer">Summer / ଗ୍ରୀଷ୍ମ</option>
+    </select>
+  </div>
+
+  <div class="language-switch">
+    <button id="langBtn">Switch to Odia / ଓଡ଼ିଆକୁ ପରିବର୍ତ୍ତନ କରନ୍ତୁ</button>
+  </div>
+</div>
+
+<div class="crop-container" id="cropContainer"></div>
+
+<div class="crop-details" id="cropDetails"></div>
+
+<script>
+let language = 'en';
+
+const crops = [
+  { name: "Wheat", odia: "ଗହମ", season: "winter", image: "wheat.jpg",
+    weather: "Cool and dry", odiaWeather: "ଠଣ୍ଡା ଓ ଶୁଷ୍କ",
+    location: "Well-drained loamy soil", odiaLocation: "ଭଲ ଡ୍ରେନ୍ ଲୋମି ମାଟି",
+    fertilizer: "Nitrogen-rich", odiaFertilizer: "ନାଇଟ୍ରୋଜେନ୍ ଧନ୍ୟ",
+    conditions: "Plant in November, harvest in March", odiaConditions: "ନଭେମ୍ବରରେ ଚାଷ, ମାର୍ଚ୍ଚରେ କାଟନ୍ତୁ"
+  },
+  { name: "Rice", odia: "ଧାନ", season: "Rainy", image: "rice.jpg",
+    weather: "Hot and humid", odiaWeather: "ଗରମ ଓ ଆର୍ଦ୍ର",
+    location: "Clayey soil with standing water", odiaLocation: "କ୍ଲେଇ ମାଟି, ଜଳ ଧରି ରଖନ୍ତୁ",
+    fertilizer: "Phosphorus-rich", odiaFertilizer: "ଫସଫୋରସ୍ ଧନ୍ୟ",
+    conditions: "Plant in June, harvest in October", odiaConditions: "ଜୁନ୍ ମାସରେ ଚାଷ, ଅକ୍ଟୋବରରେ କାଟନ୍ତୁ"
+  },
+  { name: "Maize", odia: "ମକା", season: "Rainy", image: "corn.jpg",
+    weather: "Warm and dry", odiaWeather: "ଗରମ ଓ ଶୁଷ୍କ",
+    location: "Loamy soil with good drainage", odiaLocation: "ଲୋମି ମାଟି, ଭଲ ଡ୍ରେନ୍",
+    fertilizer: "Balanced NPK", odiaFertilizer: "ସମତୁଳିତ NPK",
+    conditions: "Plant in June, harvest in September", odiaConditions: "ଜୁନ୍ ମାସରେ ଚାଷ, ସେପ୍ଟେମ୍ବରରେ କାଟନ୍ତୁ"
+  },
+  { name: "Tomato", odia: "ଟମାଟର", season: "summer", image: "tamato.jpg",
+    weather: "Warm and sunny", odiaWeather: "ଗରମ ଓ ସୂର୍ଯ୍ୟମୁଖୀ",
+    location: "Well-drained soil", odiaLocation: "ଭଲ ଡ୍ରେନ୍ ମାଟି",
+    fertilizer: "Potassium-rich", odiaFertilizer: "ପଟାସିୟମ୍ ଧନ୍ୟ",
+    conditions: "Plant in February, harvest in May", odiaConditions: "ଫେବ୍ରୁଆରୀରେ ଚାଷ, ମେ ମାସରେ କାଟନ୍ତୁ"
+  },
+  { name: "Potato", odia: "ଆଲୁ", season: "winter", image: "patato.jpg",
+    weather: "Cool and humid", odiaWeather: "ଠଣ୍ଡା ଓ ଆର୍ଦ୍ର",
+    location: "Sandy loam soil", odiaLocation: "ସ୍ୟାଣ୍ଡି ଲୋମ୍ ମାଟି",
+    fertilizer: "Nitrogen-rich", odiaFertilizer: "ନାଇଟ୍ରୋଜେନ୍ ଧନ୍ୟ",
+    conditions: "Plant in November, harvest in February", odiaConditions: "ନଭେମ୍ବରରେ ଚାଷ, ଫେବ୍ରୁଆରୀରେ କାଟନ୍ତୁ"
+  },
+  { name: "Onion", odia: "ପିଆଜ", season: "winter", image: "onion.jpg",
+    weather: "Cool and dry", odiaWeather: "ଠଣ୍ଡା ଓ ଶୁଷ୍କ",
+    location: "Loamy soil", odiaLocation: "ଲୋମି ମାଟି",
+    fertilizer: "Phosphorus-rich", odiaFertilizer: "ଫସଫୋରସ୍ ଧନ୍ୟ",
+    conditions: "Plant in October, harvest in February", odiaConditions: "ଅକ୍ଟୋବରରେ ଚାଷ, ଫେବ୍ରୁଆରୀରେ କାଟନ୍ତୁ"
+  }
+];
+
+const container = document.getElementById('cropContainer');
+const filter = document.getElementById('seasonFilter');
+const cropDetails = document.getElementById('cropDetails');
+const langBtn = document.getElementById('langBtn');
+const mainTitle = document.getElementById('mainTitle');
+const seasonLabel = document.getElementById('seasonLabel');
+
+function displayCrops(season) {
+  container.innerHTML = '';
+  const filtered = season === 'all' ? crops : crops.filter(c => c.season === season);
+  filtered.forEach(crop => {
+    const card = document.createElement('div');
+    card.className = 'crop-card';
+    card.innerHTML = `
+      <img src="${crop.image}" alt="${crop.name}">
+      <h3>${language === 'en' ? crop.name : crop.odia}</h3>
+      <p>${language === 'en' ? 'Season: ' + crop.season : 'ଋତୁ: ' + crop.season}</p>
+    `;
+    card.addEventListener('click', () => showCropDetails(crop));
+    container.appendChild(card);
+  });
+}
+
+function showCropDetails(crop) {
+  cropDetails.innerHTML = `
+    <h2>${language === 'en' ? crop.name : crop.odia}</h2>
+    <p>${language === 'en' ? 'Season: ' : 'ଋତୁ: '}${crop.season}</p>
+    <p>${language === 'en' ? 'Weather: ' : 'ଆବହା: '}${language === 'en' ? crop.weather : crop.odiaWeather}</p>
+    <p>${language === 'en' ? 'Location / Soil: ' : 'ଅଞ୍ଚଳ / ମାଟି: '}${language === 'en' ? crop.location : crop.odiaLocation}</p>
+    <p>${language === 'en' ? 'Fertilizer: ' : 'ଉର୍ବରକ: '}${language === 'en' ? crop.fertilizer : crop.odiaFertilizer}</p>
+    <p>${language === 'en' ? 'Conditions: ' : 'ସର୍ତ୍ତାବଳୀ: '}${language === 'en' ? crop.conditions : crop.odiaConditions}</p>
+  `;
+}
+
+filter.addEventListener('change', (e) => displayCrops(e.target.value));
+
+langBtn.addEventListener('click', () => {
+  language = language === 'en' ? 'od' : 'en';
+  mainTitle.textContent = language === 'en' ? 'Crop Info & Farmer Guide | କୃଷି ତଥ୍ୟ ଏବଂ ଗାଇଡ୍' : 'କୃଷି ତଥ୍ୟ ଏବଂ ଗାଇଡ୍ | Crop Info & Farmer Guide';
+  seasonLabel.textContent = language === 'en' ? 'Filter by Season / ଋତୁ ଅନୁଯାୟୀ ଚୟନ:' : 'ଋତୁ ଅନୁଯାୟୀ ଚୟନ / Filter by Season:';
+  displayCrops(filter.value);
+  cropDetails.innerHTML = '';
+});
+
+// Initial display
+displayCrops('all');
+</script>
+
+</body>
+</html>

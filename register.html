@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kisan Sathi - Register</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: url('https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=1600&q=80') no-repeat center center/cover;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      color: white;
+      backdrop-filter: blur(3px);
+    }
+
+
+.register-container {
+  background: rgba(0, 0, 0, 0.7);
+  padding: 40px;
+  border-radius: 20px;
+  width: 350px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.5);
+  position: relative;
+}
+
+h2 {
+  text-align: center;
+  color: #7CFC00;
+  margin-bottom: 25px;
+}
+
+input, textarea {
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  border: none;
+  border-radius: 10px;
+  outline: none;
+}
+
+input[type="submit"] {
+  background-color: #32CD32;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+input[type="submit"]:hover {
+  background-color: #228B22;
+}
+
+p {
+  text-align: center;
+  margin-top: 10px;
+}
+
+a {
+  color: #7CFC00;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.lang-toggle {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  background-color: #7CFC00;
+  color: black;
+  border: none;
+  border-radius: 10px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.lang-toggle:hover {
+  background-color: #32CD32;
+}
+
+
+  </style>
+</head>
+<body>
+  <div class="register-container">
+    <button class="lang-toggle" onclick="toggleLanguage()">ଓଡିଆ</button>
+    <h2 id="formTitle">Farmer Registration</h2>
+    <form id="registerForm">
+      <input type="text" id="name" placeholder="Full Name" required>
+      <input type="number" id="age" placeholder="Age" required>
+      <textarea id="address" placeholder="Address" required></textarea>
+      <input type="tel" id="mobile" placeholder="Mobile Number (10 digits)" maxlength="10" required>
+      <input type="password" id="password" placeholder="Password" required>
+      <input type="submit" id="registerBtn" value="Register">
+    </form>
+    <p id="loginText">Already have an account? <a id="loginLink" href="login.html">Login here</a></p>
+  </div>
+
+  <script>
+    let currentLang = "en";
+
+    function toggleLanguage() {
+      if(currentLang === "en") {
+        document.getElementById("formTitle").innerText = "କୃଷକ ନିବନ୍ଧନ";
+        document.getElementById("name").placeholder = "ପୂର୍ଣ୍ଣ ନାମ";
+        document.getElementById("age").placeholder = "ବୟସ";
+        document.getElementById("address").placeholder = "ଠିକଣା";
+        document.getElementById("mobile").placeholder = "ମୋବାଇଲ୍ ନମ୍ବର (10 ଡିଜିଟ୍)";
+        document.getElementById("password").placeholder = "ପାସୱାର୍ଡ";
+        document.getElementById("registerBtn").value = "ନିବନ୍ଧନ କରନ୍ତୁ";
+        document.getElementById("loginText").innerHTML = 'ପୂର୍ବରୁ ଖାତା ଅଛି? <a id="loginLink" href="login.html">ଲଗଇନ୍ କରନ୍ତୁ</a>';
+        document.querySelector(".lang-toggle").innerText = "English";
+        currentLang = "or";
+      } else {
+        document.getElementById("formTitle").innerText = "Farmer Registration";
+        document.getElementById("name").placeholder = "Full Name";
+        document.getElementById("age").placeholder = "Age";
+        document.getElementById("address").placeholder = "Address";
+        document.getElementById("mobile").placeholder = "Mobile Number (10 digits)";
+        document.getElementById("password").placeholder = "Password";
+        document.getElementById("registerBtn").value = "Register";
+        document.getElementById("loginText").innerHTML = 'Already have an account? <a id="loginLink" href="login.html">Login here</a>';
+        document.querySelector(".lang-toggle").innerText = "ଓଡିଆ";
+        currentLang = "en";
+      }
+    }
+
+    // Registration functionality
+    document.getElementById('registerForm').addEventListener('submit', function(e){
+      e.preventDefault();
+
+      const name = document.getElementById('name').value.trim();
+      const age = document.getElementById('age').value.trim();
+      const address = document.getElementById('address').value.trim();
+      const mobile = document.getElementById('mobile').value.trim();
+      const password = document.getElementById('password').value.trim();
+
+      if(mobile.length !== 10 || isNaN(mobile)) {
+        alert(currentLang === "en"
+          ? 'Please enter a valid 10-digit mobile number'
+          : 'ଦୟାକରି 10 ଡିଜିଟ୍ ମୋବାଇଲ୍ ନମ୍ବର ଦିଅନ୍ତୁ');
+        return;
+      }
+
+      // Save farmer data to localStorage
+      const farmer = { name, age, address, mobile, password };
+      localStorage.setItem('farmer_' + mobile, JSON.stringify(farmer));
+
+      // Redirect to Welcome Page
+      alert(currentLang === "en"
+        ? 'Registration successful! Redirecting to Welcome Page...'
+        : 'ନିବନ୍ଧନ ସଫଳ! ସ୍ୱାଗତ ପୃଷ୍ଠାକୁ ପଠାଯାଉଛି...');
+      
+      window.location.href = 'welcome.html';
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KISAN SATHI | Weather</title>
+  <style>
+    * {margin:0;padding:0;box-sizing:border-box;font-family:"Poppins",sans-serif;}
+    body {
+      min-height:100vh;
+      background:linear-gradient(135deg,rgba(76,175,80,0.85),rgba(129,199,132,0.85)),
+                 url('https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1950&q=80') center/cover no-repeat;
+      background-attachment:fixed;
+      color:#fff;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:flex-start;
+      text-align:center;
+      padding:2rem;
+      position:relative;
+      transition:background 2s ease-in-out;
+    }
+    h1 {color:#ffeb3b;text-shadow:1px 1px 6px rgba(0,0,0,0.6);margin-bottom:1rem;}
+    .search-box {display:flex;gap:0.5rem;margin-bottom:1rem;flex-wrap:wrap;justify-content:center;}
+    .search-box input {
+      padding:0.6rem 1rem;border-radius:10px;border:none;outline:none;
+      font-size:1rem;width:220px;
+    }
+    .search-box button {
+      padding:0.6rem 1.2rem;border:none;border-radius:10px;
+      background:rgba(255,255,255,0.25);color:#fff;
+      font-weight:600;cursor:pointer;transition:0.3s;
+    }
+    .search-box button:hover {background:rgba(255,255,255,0.35);}
+    .weather-card,.forecast {
+      background:rgba(255,255,255,0.15);
+      border-radius:20px;
+      padding:1.5rem;
+      width:90%;max-width:420px;
+      box-shadow:0 6px 20px rgba(0,0,0,0.3);
+      backdrop-filter:blur(8px);
+      margin-top:1rem;
+      animation:fadeIn 1s ease-in-out forwards;
+    }
+    .temp {font-size:3rem;font-weight:700;margin:1rem 0;}
+    .details {font-size:1rem;line-height:1.8;}
+    .icon {width:100px;height:100px;}
+    .forecast-container {
+      display:flex;justify-content:center;flex-wrap:wrap;gap:1rem;margin-top:1rem;
+    }
+    .day {
+      background:rgba(255,255,255,0.25);
+      border-radius:10px;
+      padding:0.8rem;width:110px;
+      box-shadow:0 3px 10px rgba(0,0,0,0.2);
+      transition:0.3s;
+    }
+    .day:hover {transform:translateY(-5px);}
+    .day h4 {margin-bottom:0.4rem;}
+    .day img {width:60px;height:60px;}
+    #langBtn,#backBtn {
+      position:absolute;top:20px;padding:0.5rem 1rem;
+      border-radius:20px;border:none;cursor:pointer;font-weight:600;
+      background:rgba(255,255,255,0.3);color:#fff;
+    }
+    #langBtn {right:25px;}
+    #backBtn {left:25px;}
+    @keyframes fadeIn {from{opacity:0;transform:translateY(15px);}to{opacity:1;transform:translateY(0);}}
+  </style>
+</head>
+<body>
+  <a href="welcome.html"><button id="backBtn" onclick="window.location.href='index.html'">← Back</button></a>
+  <button id="langBtn">ଓଡିଆ</button>
+
+  <h1 id="pageTitle">🌦 Weather Report</h1>
+
+  <div class="search-box">
+    <input type="text" id="cityInput" placeholder="Enter city name (e.g., Bhubaneswar)" />
+    <button id="searchBtn">Search</button>
+  </div>
+
+  <div class="weather-card">
+    <h2 id="location">Fetching location...</h2>
+    <img id="weatherIcon" class="icon" src="" alt="">
+    <div class="temp" id="temperature"></div>
+    <div class="details" id="details"></div>
+  </div>
+
+  <div class="forecast">
+    <h3 id="forecastTitle">🌤 5-Day Forecast</h3>
+    <div class="forecast-container" id="forecastContainer"></div>
+  </div>
+
+<script>
+const API_KEY = "fba453d3138ff243614b8cbc7385a69a"; // Replace with your OpenWeatherMap API key
+const langBtn=document.getElementById("langBtn"),pageTitle=document.getElementById("pageTitle"),
+locationEl=document.getElementById("location"),tempEl=document.getElementById("temperature"),
+detailsEl=document.getElementById("details"),iconEl=document.getElementById("weatherIcon"),
+cityInput=document.getElementById("cityInput"),searchBtn=document.getElementById("searchBtn"),
+forecastContainer=document.getElementById("forecastContainer"),forecastTitle=document.getElementById("forecastTitle");
+
+let isEnglish=true,weatherData=null;
+
+const odiaCityMap={
+  "ଭୁବନେଶ୍ୱର":"Bhubaneswar","କଟକ":"Cuttack","ପୁରୀ":"Puri",
+  "ବଲେଶ୍ୱର":"Balasore","ବ୍ରହ୍ମପୁର":"Berhampur",
+  "ସମ୍ବଲପୁର":"Sambalpur","ରାଉରକେଲା":"Rourkela","ଖୋର୍ଦ୍ଧା":"Khordha"
+};
+
+// 🌈 Background images based on weather
+const weatherBackgrounds = {
+  Clear: "https://images.unsplash.com/photo-1503264116251-35a269479413?auto=format&fit=crop&w=1950&q=80",
+  Clouds: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1950&q=80",
+  Rain: "https://images.unsplash.com/photo-1501594907352-04cda38ebc29?auto=format&fit=crop&w=1950&q=80",
+  Drizzle: "https://images.unsplash.com/photo-1498715882285-132b1e26c3b7?auto=format&fit=crop&w=1950&q=80",
+  Thunderstorm: "https://images.unsplash.com/photo-1500673922987-e212871fec22?auto=format&fit=crop&w=1950&q=80",
+  Snow: "https://images.unsplash.com/photo-1608889175285-fab26cc1b6c0?auto=format&fit=crop&w=1950&q=80",
+  Mist: "https://images.unsplash.com/photo-1476610182048-b716b8518aae?auto=format&fit=crop&w=1950&q=80",
+  Fog: "https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=1950&q=80"
+};
+
+function changeBackground(condition){
+  const image = weatherBackgrounds[condition] || weatherBackgrounds["Clear"];
+  document.body.style.background = `linear-gradient(135deg,rgba(76,175,80,0.85),rgba(129,199,132,0.85)), 
+                                    url('${image}') center/cover no-repeat`;
+}
+
+function fetchWeatherByCity(city){
+  if(!city)return;
+  if(odiaCityMap[city]) city=odiaCityMap[city];
+  const url=`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`;
+  fetch(url)
+    .then(res=>res.json())
+    .then(data=>{
+      if(data.cod===200){
+        weatherData=data;
+        showWeather();
+        fetchForecast(data.coord.lat,data.coord.lon);
+      }else{showError(isEnglish?"City not found!":"ସହର ମିଳିଲା ନାହିଁ!");}
+    })
+    .catch(()=>showError(isEnglish?"Error fetching data!":"ତଥ୍ୟ ଆଣିବାରେ ଭୁଲ!"));
+}
+
+function fetchForecast(lat,lon){
+  const url=`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`;
+  fetch(url)
+    .then(res=>res.json())
+    .then(data=>showForecast(data))
+    .catch(()=>forecastContainer.innerHTML=isEnglish?"Error loading forecast":"ଭବିଷ୍ୟତ ଆବହା ତଥ୍ୟ ଆସୁନାହିଁ");
+}
+
+function showWeather(){
+  const {name,main,weather,wind}=weatherData;
+  const temperature=Math.round(main.temp),humidity=main.humidity,windSpeed=wind.speed,condition=weather[0].main;
+  const iconUrl=`https://openweathermap.org/img/wn/${weather[0].icon}@2x.png`;
+  iconEl.src=iconUrl;locationEl.textContent=name;
+  tempEl.textContent=`${temperature}°C`;
+  detailsEl.innerHTML=isEnglish?
+  `Condition: ${condition}<br>Humidity: ${humidity}%<br>Wind Speed: ${windSpeed} m/s`:
+  `ପରିସ୍ଥିତି: ${condition}<br>ଆର୍ଦ୍ରତା: ${humidity}%<br>ପବନ ବେଗ: ${windSpeed} ମି/ସେ`;
+  changeBackground(condition);
+}
+
+function showForecast(data){
+  forecastContainer.innerHTML="";
+  const daily={};
+  data.list.forEach(item=>{
+    const date=new Date(item.dt_txt).toLocaleDateString("en-GB",{weekday:"short"});
+    if(!daily[date]) daily[date]=item;
+  });
+  Object.keys(daily).slice(0,5).forEach(day=>{
+    const d=daily[day],temp=Math.round(d.main.temp),icon=d.weather[0].icon,desc=d.weather[0].main;
+    const card=document.createElement("div");
+    card.className="day";
+    card.innerHTML=`<h4>${day}</h4><img src="https://openweathermap.org/img/wn/${icon}.png"><p>${temp}°C</p><small>${desc}</small>`;
+    forecastContainer.appendChild(card);
+  });
+}
+
+function showError(msg){
+  locationEl.textContent=msg;tempEl.textContent="";detailsEl.textContent="";
+  iconEl.src="";forecastContainer.innerHTML="";
+}
+
+function getLocation(){
+  if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(
+      pos=>fetchWeather(pos.coords.latitude,pos.coords.longitude),
+      ()=>showError(isEnglish?"Location access denied!":"ଅବସ୍ଥାନ ଆକ୍ସେସ୍ ବନ୍ଦ!")
+    );
+  }else showError(isEnglish?"Geolocation not supported.":"ଅବସ୍ଥାନ ସୁବିଧା ନାହିଁ।");
+}
+
+function fetchWeather(lat,lon){
+  const url=`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`;
+  fetch(url)
+    .then(res=>res.json())
+    .then(data=>{
+      weatherData=data;
+      showWeather();
+      fetchForecast(lat,lon);
+    })
+    .catch(()=>showError(isEnglish?"Failed to fetch data!":"ତଥ୍ୟ ଆଣିବାରେ ବିଫଳ!"));
+}
+
+langBtn.addEventListener("click",()=>{
+  isEnglish=!isEnglish;
+  langBtn.textContent=isEnglish?"ଓଡିଆ":"ENGLISH";
+  pageTitle.textContent=isEnglish?"🌦 Weather Report":"🌦 ଆବହାଅବସ୍ଥା ରିପୋର୍ଟ";
+  cityInput.placeholder=isEnglish?"Enter city name (e.g., Bhubaneswar)":"ସହର ଲେଖନ୍ତୁ (ଉଦାହରଣ: ଭୁବନେଶ୍ୱର)";
+  searchBtn.textContent=isEnglish?"Search":"ସନ୍ଧାନ";
+  forecastTitle.textContent=isEnglish?"🌤 5-Day Forecast":"🌤 ୫ ଦିନର ଆବହା ଭବିଷ୍ୟବାଣୀ";
+  if(weatherData) showWeather();
+});
+
+searchBtn.addEventListener("click",()=>fetchWeatherByCity(cityInput.value.trim()));
+cityInput.addEventListener("keypress",e=>{if(e.key==="Enter")fetchWeatherByCity(cityInput.value.trim());});
+getLocation();
+</script>
+</body>
+</html>

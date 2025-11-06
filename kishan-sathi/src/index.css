@@ -1,0 +1,11 @@
+@import "tailwindcss";
+
+
+@tailwind utilities;
+
+body {
+  font-family: 'Noto Sans Oriya', sans-serif;
+  background-image: url("ox.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;
+}

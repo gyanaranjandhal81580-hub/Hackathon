@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KISAN SATHI | Welcome</title>
+  <a href="weather.html" class="btn" id="btnWeather">🌦 Weather</a>
+  <a href="schemes.html"></a>
+  <a href="crop.html"></a>
+  
+
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Poppins", sans-serif;
+    }
+
+    body {
+      height: 100vh;
+      width: 100%;
+      background: url("https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1600&q=80")
+        no-repeat center center/cover;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+      transition: background 0.6s ease, color 0.4s ease;
+    }
+
+    body::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(6px);
+      z-index: 1;
+      transition: all 0.5s ease;
+    }
+
+    body.light-mode::before {
+      background: rgba(255, 255, 255, 0.5);
+    }
+
+    /* === Logo === */
+    .logo {
+      position: absolute;
+      top: 20px;
+      left: 25px;
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #a5d6a7;
+      text-shadow: 1px 1px 6px rgba(0, 0, 0, 0.4);
+      font-weight: 700;
+      font-size: 1.3rem;
+      cursor: default;
+      animation: fadeSlide 1s ease forwards;
+    }
+
+    .logo img {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.4);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+      transition: transform 0.3s ease;
+    }
+
+    .logo img:hover {
+      transform: rotate(10deg) scale(1.05);
+    }
+
+    @keyframes fadeSlide {
+      from {
+        opacity: 0;
+        transform: translateX(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    /* === Container === */
+    .container {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      max-width: 950px;
+      width: 90%;
+      padding: 2rem;
+      border-radius: 20px;
+      transition: color 0.3s ease;
+    }
+
+    h1 {
+      font-size: 2.6rem;
+      font-weight: 700;
+      color: #a5d6a7;
+      text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.4);
+      margin-bottom: 0.3rem;
+      transition: color 0.3s ease;
+    }
+
+    h2 {
+      font-size: 1.2rem;
+      font-weight: 400;
+      margin-bottom: 2rem;
+      color: #fff;
+      text-shadow: 1px 1px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .btn-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1.2rem;
+      margin-top: 1rem;
+    }
+
+    .btn {
+      background: rgba(255, 255, 255, 0.15);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 16px;
+      padding: 2rem 1rem;
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: 600;
+      text-decoration: none;
+      backdrop-filter: blur(6px);
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+      transform: translateY(-5px) scale(1.05);
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.3);
+    }
+
+    /* === Toggle buttons === */
+    .lang-toggle,
+    .theme-toggle {
+      position: absolute;
+      top: 20px;
+      z-index: 5;
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: #fff;
+      font-size: 1rem;
+      padding: 0.4rem 0.8rem;
+      border-radius: 20px;
+      cursor: pointer;
+      backdrop-filter: blur(5px);
+      transition: all 0.3s ease;
+    }
+
+    .lang-toggle:hover,
+    .theme-toggle:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: scale(1.1);
+    }
+
+    .lang-toggle {
+      right: 25px;
+    }
+
+    .theme-toggle {
+      right: 150px;
+      font-size: 1.4rem;
+      padding: 0.3rem 0.6rem;
+      border-radius: 50%;
+    }
+
+    /* === Light mode === */
+    body.light-mode {
+      color: #222;
+    }
+
+    body.light-mode .btn {
+      color: #222;
+      background: rgba(255, 255, 255, 0.8);
+      border-color: rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    }
+
+    body.light-mode .btn:hover {
+      background: rgba(255, 255, 255, 0.95);
+    }
+
+    body.light-mode h1 {
+      color: #2e7d32;
+    }
+
+    body.light-mode .logo {
+      color: #2e7d32;
+      text-shadow: none;
+    }
+
+    .logout {
+      margin-top: 2.2rem;
+      font-size: 0.95rem;
+    }
+
+    .logout a {
+      color: #a5d6a7;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .logout a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 2rem;
+      }
+      h2 {
+        font-size: 1rem;
+      }
+      .btn {
+        font-size: 1rem;
+        padding: 1.6rem 1rem;
+      }
+      .theme-toggle {
+        right: 120px;
+      }
+      .logo img {
+        width: 40px;
+        height: 40px;
+      }
+    }
+
+    .fade-in {
+      animation: fadeIn 1s ease-in-out forwards;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(15px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- ✅ Logo Section -->
+  <div class="logo">
+    <img src="https://cdn-icons-png.flaticon.com/512/2909/2909763.png" alt="Kisan Sathi Logo">
+    <span>KISAN SATHI</span>
+  </div>
+
+  <!-- Toggle Buttons -->
+  <button class="theme-toggle" id="themeBtn">🌙</button>
+  <button class="lang-toggle" id="langBtn">ଓଡିଆ</button>
+
+  <!-- Main Content -->
+  <div class="container fade-in">
+    <h1 id="welcomeTitle">Welcome to KISAN SATHI</h1>
+    <h2 id="welcomeSub">Your Smart Farming Assistant</h2>
+
+    <div class="btn-grid" id="menuGrid">
+      <a href="weather.html" class="btn" id="btnWeather">🌦 Weather</a>
+      <a href="crop.html" class="btn" id="btnCrop">🌾Healthy Crops</a>
+      <a href="schemes.html" class="btn" id="btnSchemes">🏛 Govt Schemes</a>
+      <a href="mandi.html" class="btn" id="btnMarket">💰 Mandi Prices</a>
+      <a href="chat.html" class="btn" id="btnChat">🧠 AI Chat</a>
+      
+<a href="equipment.html" class="btn" id="btnEquipment">🛠 Farming Equipment</a>
+<a href="complain.html" class="btn" id="btnComplain">📝 Complain Box</a>
+
+    </div>
+
+    <div class="logout">
+      <p><a href="login.html" id="logoutText">← Logout</a></p>
+    </div>
+  </div>
+
+  <script>
+    const langBtn = document.getElementById("langBtn");
+    const themeBtn = document.getElementById("themeBtn");
+    const welcomeTitle = document.getElementById("welcomeTitle");
+    const welcomeSub = document.getElementById("welcomeSub");
+    const logoutText = document.getElementById("logoutText");
+
+    const btnWeather = document.getElementById("btnWeather");
+    const btnCrop = document.getElementById("btnCrop");
+    const btnSchemes = document.getElementById("btnSchemes");
+    const btnMarket = document.getElementById("btnMarket");
+    const btnChat = document.getElementById("btnChat");
+
+    let isEnglish = true;
+
+    // Language toggle
+    langBtn.addEventListener("click", () => {
+      isEnglish = !isEnglish;
+      if (isEnglish) {
+        langBtn.textContent = "ଓଡିଆ";
+        welcomeTitle.textContent = "Welcome to KISAN SATHI";
+        welcomeSub.textContent = "Your Smart Farming Assistant";
+        btnWeather.textContent = "🌦 Weather";
+        btnCrop.textContent = "🌾 Crop Health";
+        btnSchemes.textContent = "🏛 Govt Schemes";
+        btnMarket.textContent = "💰 Mandi Prices";
+        btnChat.textContent = "🧠 AI Chat";
+        
+        logoutText.textContent = "← Logout";
+      } else {
+        langBtn.textContent = "ENGLISH";
+        welcomeTitle.textContent = "କିସାନ ସାଥିକୁ ସ୍ୱାଗତ";
+        welcomeSub.textContent = "ଆପଣଙ୍କ ସ୍ମାର୍ଟ ଚାଷୀ ସହାୟକ";
+        btnWeather.textContent = "🌦 ଆବହାଅବସ୍ଥା";
+        btnCrop.textContent = "🌾 ଫସଲ ସହାୟତା";
+        btnSchemes.textContent = "🏛 ସରକାରୀ ଯୋଜନା";
+        btnMarket.textContent = "💰 ମଣ୍ଡି ଦର";
+        btnChat.textContent = "🧠 ଓଡ଼ିଆ AI ଚାଟ୍";
+        logoutText.textContent = "← ଲଗଆଉଟ୍";
+      }
+      const btnEquipment = document.getElementById("btnEquipment");
+const btnComplain = document.getElementById("btnComplain");
+
+// Inside the language toggle function:
+if (isEnglish) {
+    btnEquipment.textContent = "🛠 Farming Equipment";
+    btnComplain.textContent = "📝 Complain Box";
+} else {
+    btnEquipment.textContent = "🛠 କୃଷି ସାମଗ୍ରୀ";
+    btnComplain.textContent = "📝 ଅଭିଯୋଗ ବକ୍ସ";
+}
+
+    });
+
+    // Theme toggle
+    themeBtn.addEventListener("click", () => {
+      document.body.classList.toggle("light-mode");
+      const isLight = document.body.classList.contains("light-mode");
+      themeBtn.textContent = isLight ? "☀️" : "🌙";
+    });
+  </script>
+</body>
+</html>

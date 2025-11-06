@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kisan Sathi | Login</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #e8f5e9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .login-box {
+      background-color: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+      width: 300px;
+      text-align: center;
+    }
+
+    h2 {
+      color: #2e7d32;
+      margin-bottom: 20px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      background-color: #2e7d32;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #1b5e20;
+    }
+
+    .message {
+      margin-top: 10px;
+      font-size: 14px;
+    }
+
+    .error {
+      color: red;
+    }
+
+    .success {
+      color: green;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-box">
+    <h2>Kisan Sathi Login</h2>
+    <input type="text" id="mobile" placeholder="Mobile Number">
+    <input type="password" id="password" placeholder="Password">
+    <a href="welcome.html"><button onclick="login()">Login</button></a>
+    <div class="message" id="message"></div>
+    <p style="font-size:12px; color:#777;">Demo: Mobile - 9876543210 | Password - kisan@123</p>
+  </div>
+
+  <script>
+    function login() {
+      let mobile = document.getElementById("mobile").value.trim();
+      let password = document.getElementById("password").value.trim();
+      let message = document.getElementById("message");
+
+      // Simple check
+      if (mobile === "9876543210" && password === "kisan@123") {
+        message.textContent = "Login Successful! Redirecting...";
+        message.className = "message success";
+        setTimeout(() => {
+          window.location.href = "dashboard.html"; // redirect page
+        }, 1500);
+      } else {
+        message.textContent = "Invalid mobile number or password.";
+        message.className = "message error";
+      }
+    }
+  </script>
+
+</body>
+</html>

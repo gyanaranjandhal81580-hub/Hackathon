@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Complaint Box</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #f0f4f2; padding: 20px; }
+  .container { max-width: 800px; margin: auto; }
+  h1 { color: #2b8a3e; }
+  form { background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+  label { display: block; margin: 10px 0 5px; }
+  input, select, textarea { width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc; }
+  button { background: #2b8a3e; color: #fff; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; margin-top: 10px; }
+  .msg { margin-top: 10px; padding: 10px; border-radius: 5px; display: none; }
+  .success { background: #eef7ee; color: #0b6a2f; }
+  .list { margin-top: 20px; }
+  .item { background: #fff; border-radius: 8px; padding: 12px; margin-bottom: 10px; border: 1px solid #e0e6e4; }
+  .meta { font-size: 12px; color: #555; margin-bottom: 5px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Complaint Box</h1>
+  <form id="complaintForm">
+    <label for="name">Name</label>
+    <input type="text" id="name" required placeholder="Enter your name">
+
+```
+<label for="mobile">Mobile Number</label>
+<input type="tel" id="mobile" required placeholder="Enter 10-digit number" pattern="[0-9]{10}">
+
+<label for="category">Category</label>
+<select id="category" required>
+  <option value="">Select Category</option>
+  <option value="Crop issue">Crop issue</option>
+  <option value="Irrigation">Irrigation</option>
+  <option value="Equipment">Equipment</option>
+  <option value="Other">Other</option>
+</select>
+
+<label for="complaint">Complaint</label>
+<textarea id="complaint" required placeholder="Write your complaint here"></textarea>
+
+<button type="submit">Submit</button>
+<div class="msg" id="msg"></div>
+```
+
+  </form>
+
+  <div class="list" id="complaintList"></div>
+</div>
+
+<script>
+const form = document.getElementById('complaintForm');
+const msg = document.getElementById('msg');
+const complaintList = document.getElementById('complaintList');
+
+function renderComplaints() {
+  const complaints = JSON.parse(localStorage.getItem('complaints') || '[]');
+  complaintList.innerHTML = complaints.map(c => `
+    <div class="item">
+      <div class="meta"><strong>${c.name}</strong> (${c.mobile}) • ${c.category} • ${c.timestamp}</div>
+      <p>${c.complaint}</p>
+    </div>
+  `).join('');
+}
+
+form.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const complaint = {
+    name: form.name.value,
+    mobile: form.mobile.value,
+    category: form.category.value,
+    complaint: form.complaint.value,
+    timestamp: new Date().toLocaleString()
+  };
+  const complaints = JSON.parse(localStorage.getItem('complaints') || '[]');
+  complaints.push(complaint);
+  localStorage.setItem('complaints', JSON.stringify(complaints));
+  msg.textContent = 'Complaint submitted successfully!';
+  msg.className = 'msg success';
+  msg.style.display = 'block';
+  form.reset();
+  renderComplaints();
+});
+
+renderComplaints();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,186 @@
+<!DOCTYPE html>  
+
+<html lang="en">  
+<head>  
+<meta charset="UTF-8">  
+<meta name="viewport" content="width=device-width, initial-scale=1.0">  
+<title>KISAN SATHI | Mandi & Fertilizer Prices</title>  
+<style>  
+body {  
+  margin: 0;  
+  font-family: 'Poppins', sans-serif;  
+  background: url('https://images.unsplash.com/photo-1597555723044-d3fcfa702f95?auto=format&fit=crop&w=1600&q=80') no-repeat center center/cover;  
+  color: #fff;  
+  min-height: 100vh;  
+  display: flex;  
+  flex-direction: column;  
+  align-items: center;  
+  justify-content: flex-start;  
+}  
+.overlay {  
+  background: rgba(0,0,0,0.6);  
+  width: 100%;  
+  min-height: 100vh;  
+  padding: 2rem 1rem;  
+}  
+.logo {  
+  display: flex;  
+  align-items: center;  
+  gap: 10px;  
+  font-weight: 700;  
+  font-size: 1.4rem;  
+  color: #a5d6a7;  
+}  
+.logo img {  
+  width: 50px;  
+  height: 50px;  
+  border-radius: 50%;  
+  border: 2px solid rgba(255,255,255,0.4);  
+}  
+header {  
+  text-align: center;  
+  margin-bottom: 2rem;  
+}  
+h1 { font-size: 2rem; }  
+p { font-size: 1rem; }  
+.lang-toggle, .back-btn {  
+  position: fixed;  
+  padding: 0.5rem 1rem;  
+  border: none;  
+  border-radius: 20px;  
+  cursor: pointer;  
+  background: rgba(255,255,255,0.2);  
+  color: #fff;  
+}  
+.lang-toggle { top: 20px; right: 20px; }  
+.back-btn { top: 20px; left: 20px; }  
+.search-box {  
+  display: flex;  
+  justify-content: center;  
+  margin: 1rem 0;  
+}  
+.search-box input {  
+  padding: 10px 15px;  
+  border-radius: 20px;  
+  border: none;  
+  width: 250px;  
+  font-size: 1rem;  
+}  
+.card-container {  
+  display: grid;  
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));  
+  gap: 1rem;  
+  width: 100%;  
+  max-width: 1200px;  
+}  
+.card {  
+  background: rgba(0,0,0,0.6);  
+  padding: 1rem;  
+  border-radius: 15px;  
+  box-shadow: 0 4px 10px rgba(0,0,0,0.5);  
+}  
+.back-btn{
+  margin-left: 1200px;
+}
+.card h3 { margin-top: 0; color: #a5d6a7; }  
+.card table { width: 100%; border-collapse: collapse; }  
+.card table th, .card table td { text-align: left; padding: 0.3rem; border-bottom: 1px solid rgba(255,255,255,0.3); }  
+@media(max-width:600px){  
+  .search-box input{ width:180px; }  
+}  
+</style>  
+</head>  
+<body>  
+<div class="overlay">  
+<div class="logo">  
+<img src="https://cdn-icons-png.flaticon.com/512/2909/2909763.png" alt="Logo">  
+<span>KISAN SATHI</span>  
+</div>  
+
+<a href="welcome.html"><button class="back-btn" onclick="window.location.href='welcome.html'">Back</button> </a>
+<button class="lang-toggle" id="langBtn">ଓଡିଆ</button>
+
+<header>  
+<h1 id="pageTitle">Mandi & Fertilizer Prices in Odisha</h1>  
+<p id="pageDesc">Check daily crop & fertilizer prices for farmers</p>  
+</header>  
+
+<div class="search-box">  
+<input type="text" id="searchBox" placeholder="Search crop...">  
+</div>  
+
+<h2 id="cropTitle">Crop Prices by City</h2>  
+<div class="card-container" id="cropCards"></div>  
+
+<h2 id="fertTitle">Fertilizer Prices</h2>  
+<div class="card-container" id="fertCards"></div>  
+</div>  
+
+<script>  
+const langBtn = document.getElementById("langBtn");  
+let isOdia = false;  
+
+const crops = [  
+  { cropEN:"Rice", cropOD:"ଧାନ", unit:"Quintal", prices:{Bhubaneswar:3200,Cuttack:3150,Sambalpur:3180,Berhampur:3220,Balasore:3170,Angul:3190,Keonjhar:3210,Kalahandi:3160}},  
+  { cropEN:"Wheat", cropOD:"ଗହମ", unit:"Quintal", prices:{Bhubaneswar:2800,Cuttack:2820,Sambalpur:2790,Berhampur:2810,Balasore:2830,Angul:2780,Keonjhar:2840,Kalahandi:2800}},  
+  { cropEN:"Maize", cropOD:"ଭୁଟ୍ଟା", unit:"Quintal", prices:{Bhubaneswar:2700,Cuttack:2720,Sambalpur:2690,Berhampur:2710,Balasore:2730,Angul:2680,Keonjhar:2740,Kalahandi:2700}},  
+  { cropEN:"Onion", cropOD:"ପିଆଜ", unit:"Quintal", prices:{Bhubaneswar:2400,Cuttack:2350,Sambalpur:2380,Berhampur:2420,Balasore:2370,Angul:2390,Keonjhar:2410,Kalahandi:2360}},  
+  { cropEN:"Potato", cropOD:"ଆଳୁ", unit:"Quintal", prices:{Bhubaneswar:1800,Cuttack:1820,Sambalpur:1790,Berhampur:1810,Balasore:1830,Angul:1780,Keonjhar:1840,Kalahandi:1800}},  
+  { cropEN:"Paddy", cropOD:"ଧାନ", unit:"Quintal", prices:{Bhubaneswar:3000,Cuttack:3020,Sambalpur:2990,Berhampur:3010,Balasore:3030,Angul:2980,Keonjhar:3040,Kalahandi:3000}},  
+  { cropEN:"Mustard", cropOD:"ସରସୋ", unit:"Quintal", prices:{Bhubaneswar:5100,Cuttack:5120,Sambalpur:5090,Berhampur:5110,Balasore:5130,Angul:5080,Keonjhar:5140,Kalahandi:5100}},  
+  { cropEN:"Sugarcane", cropOD:"ଚିନିକଣ୍ଡା", unit:"Quintal", prices:{Bhubaneswar:320,Cuttack:330,Sambalpur:315,Berhampur:325,Balasore:335,Angul:318,Keonjhar:328,Kalahandi:322}}  
+];  
+
+const fertilizers = [  
+  { fertEN:"Urea", fertOD:"ଇଉରିଆ", unit:"45 kg bag", price:900},  
+  { fertEN:"DAP", fertOD:"ଡି.ଏ.ପି", unit:"50 kg bag", price:2400},  
+  { fertEN:"MOP", fertOD:"ଏମ.ଓ.ପି", unit:"50 kg bag", price:2100},  
+  { fertEN:"SSP", fertOD:"ଏସ.ଏସ.ପି", unit:"50 kg bag", price:1150},  
+  { fertEN:"SOP", fertOD:"ଏସ.ଓ.ପି", unit:"50 kg bag", price:4800},  
+  { fertEN:"Zinc Sulphate", fertOD:"ଜିଙ୍କ ସଲଫେଟ୍", unit:"50 kg bag", price:2100},  
+  { fertEN:"Ammonium Sulphate", fertOD:"ଆମୋନିୟମ୍ ସଲଫେଟ୍", unit:"50 kg bag", price:1750},  
+  { fertEN:"Calcium Nitrate", fertOD:"କ୍ୟାଲସିୟମ୍ ନାଇଟ୍ରେଟ୍", unit:"25 kg bag", price:2200},  
+  { fertEN:"Potash", fertOD:"ପଟାସ୍", unit:"50 kg bag", price:2000},  
+  { fertEN:"Multi NPK 20:20:20", fertOD:"ମଲ୍ଟି ଏନ୍ପିକେ 20:20:20", unit:"50 kg bag", price:2500}  
+];  
+
+function renderCrops(){  
+  const container = document.getElementById("cropCards");  
+  container.innerHTML="";  
+  crops.forEach(c=>{  
+    const name = isOdia?c.cropOD:c.cropEN;  
+    let html=`<div class="card"><h3>${name} (${c.unit})</h3><table>`;  
+    for(const city in c.prices){  
+      html+=`<tr><td>${city}</td><td>₹${c.prices[city]}</td></tr>`;  
+    }  
+    html+="</table></div>";  
+    container.insertAdjacentHTML("beforeend",html);  
+  });  
+}  
+
+function renderFerts(){  
+  const container = document.getElementById("fertCards");  
+  container.innerHTML="";  
+  fertilizers.forEach(f=>{  
+    const name = isOdia?f.fertOD:f.fertEN;  
+    const html=`<div class="card"><h3>${name}</h3><table><tr><td>${f.unit}</td><td>₹${f.price}</td></tr></table></div>`;  
+    container.insertAdjacentHTML("beforeend",html);  
+  });  
+}  
+
+renderCrops();  
+renderFerts();  
+
+langBtn.addEventListener("click",()=>{  
+  isOdia=!isOdia;  
+  document.getElementById("pageTitle").textContent=isOdia?"ଓଡ଼ିଶାର ମଣ୍ଡି ଏବଂ ସାର ମୂଲ୍ୟ":"Mandi & Fertilizer Prices in Odisha";  
+  document.getElementById("pageDesc").textContent=isOdia?"କୃଷକଙ୍କ ପାଇଁ ଦୈନିକ ଫସଲ ଏବଂ ସାର ମୂଲ୍ୟ ଯାଞ୍ଚ କରନ୍ତୁ":"Check daily crop & fertilizer prices for farmers";  
+  document.getElementById("cropTitle").textContent=isOdia?"ସହର ଅନୁସାରେ ଫସଲ ମୂଲ୍ୟ":"Crop Prices by City";  
+  document.getElementById("fertTitle").textContent=isOdia?"ସାର ମୂଲ୍ୟ":"Fertilizer Prices";  
+  renderCrops();  
+  renderFerts();  
+});  
+</script>  
+
+</body>  
+</html>  

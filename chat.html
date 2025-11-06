@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KISAN SATHI | AI Chat</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; font-family:"Poppins", sans-serif; }
+    body { background: url("https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1600&q=80") no-repeat center center/cover; color:#fff; display:flex; flex-direction:column; align-items:center; min-height:100vh; }
+    body::before { content:""; position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.45); backdrop-filter:blur(6px); z-index:-1; }
+    .container { margin-top:80px; width:90%; max-width:800px; background:rgba(0,0,0,0.55); border-radius:20px; padding:20px; }
+    h1 { text-align:center; color:#a5d6a7; margin-bottom:20px; }
+    #chatWindow { background:rgba(255,255,255,0.1); border-radius:12px; height:250px; overflow-y:auto; padding:10px; margin-bottom:15px; display:flex; flex-direction:column; }
+    .message { margin:8px 0; padding:10px 15px; border-radius:15px; max-width:75%; word-wrap:break-word; }
+    .userMsg { background:rgba(165,214,167,0.8); color:#000; align-self:flex-end; }
+    .aiMsg { background:rgba(255,255,255,0.25); color:#fff; align-self:flex-start; }
+    #userInput { width:75%; padding:10px 15px; border-radius:20px; border:none; outline:none; margin-right:10px; }
+    #sendBtn, #detectBtn, #langToggle { padding:10px 15px; border:none; border-radius:20px; cursor:pointer; margin-top:5px; background:rgba(165,214,167,0.8); color:#000; font-weight:600; }
+    #cropImageInput { margin-top:10px; }
+    .chat-controls { display:flex; justify-content:center; margin-bottom:10px; flex-wrap:wrap; gap:10px; }
+    body.light-mode { color:#222; }
+    body.light-mode .container { background:rgba(255,255,255,0.85); color:#222; }
+    body.light-mode #chatWindow { background:rgba(0,0,0,0.05); color:#222; }
+    body.light-mode #sendBtn, body.light-mode #detectBtn, body.light-mode #langToggle { background:#2e7d32; color:#fff; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 id="chatTitle">AI Chat Assistant</h1>
+
+
+<div id="chatWindow"></div>
+
+<div class="chat-controls">
+  <input type="text" id="userInput" placeholder="Ask about your crops..." />
+  <button id="sendBtn">Send</button>
+</div>
+
+<div>
+  <h3 id="uploadTitle">Or upload crop image for disease detection:</h3>
+  <input type="file" id="cropImageInput" accept="image/*" />
+  <button id="detectBtn">Detect Disease</button>
+  <p id="diseaseResult"></p>
+</div>
+
+<button id="langToggle">ଓଡିଆ</button>
+<button id="themeBtn">🌙</button>
+
+
+  </div>
+
+  <script>
+    const chatWindow = document.getElementById("chatWindow");
+    const userInput = document.getElementById("userInput");
+    const sendBtn = document.getElementById("sendBtn");
+    const cropImageInput = document.getElementById("cropImageInput");
+    const detectBtn = document.getElementById("detectBtn");
+    const diseaseResult = document.getElementById("diseaseResult");
+    const langToggle = document.getElementById("langToggle");
+    const themeBtn = document.getElementById("themeBtn");
+    const chatTitle = document.getElementById("chatTitle");
+    const uploadTitle = document.getElementById("uploadTitle");
+
+    let isEnglish = true;
+
+    // Realistic AI responses
+    const aiResponses = [
+      "Water your crops early in the morning to reduce evaporation.",
+      "Rotate your crops every season to maintain soil fertility.",
+      "Use organic fertilizers to enhance soil health.",
+      "Monitor for pests regularly to prevent outbreaks.",
+      "Ensure proper spacing between plants to improve airflow.",
+      "Mulching can help retain soil moisture and reduce weeds.",
+      "Prune damaged leaves to prevent disease spread.",
+      "Use drip irrigation for efficient water usage.",
+      "Plant disease-resistant crop varieties when possible.",
+      "Test your soil pH and nutrients for optimal growth.",
+      "Avoid over-fertilization, as it can harm plants.",
+      "Companion planting can reduce pests naturally.",
+      "Harvest crops at the right maturity for best quality.",
+      "Keep farm tools clean to prevent disease transmission.",
+      "Monitor weather forecasts to plan irrigation and sowing.",
+      "Store harvested crops in a cool, dry place.",
+      "Rotate livestock grazing to prevent soil degradation.",
+      "Use neem oil or bio-pesticides for organic pest control.",
+      "Keep records of crop growth, diseases, and yields.",
+      "Plant cover crops to improve soil structure and fertility."
+    ];
+
+    function addMessage(text, sender) {
+      const msgDiv = document.createElement("div");
+      msgDiv.textContent = text;
+      msgDiv.classList.add("message");
+      msgDiv.classList.add(sender === "user" ? "userMsg" : "aiMsg");
+      chatWindow.appendChild(msgDiv);
+      chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
+
+    function getAIResponse(message) {
+      // Return a random farming tip
+      const index = Math.floor(Math.random() * aiResponses.length);
+      return aiResponses[index];
+    }
+
+    sendBtn.addEventListener("click", () => {
+      const message = userInput.value.trim();
+      if(!message) return;
+      addMessage(message, "user");
+      userInput.value = "";
+      setTimeout(() => {
+        const response = getAIResponse(message);
+        addMessage(response, "ai");
+      }, 500);
+    });
+
+    userInput.addEventListener("keypress", (e) => {
+      if(e.key === "Enter") sendBtn.click();
+    });
+
+    detectBtn.addEventListener("click", () => {
+      const file = cropImageInput.files[0];
+      if(!file) { alert("Please select an image"); return; }
+
+      diseaseResult.textContent = "Detecting disease...";
+
+      // Placeholder for API
+      setTimeout(() => {
+        diseaseResult.textContent = "Disease detected: Leaf Blight (simulated)";
+      }, 1500);
+    });
+
+    langToggle.addEventListener("click", () => {
+      isEnglish = !isEnglish;
+      if(isEnglish){
+        langToggle.textContent = "ଓଡିଆ";
+        chatTitle.textContent = "AI Chat Assistant";
+        uploadTitle.textContent = "Or upload crop image for disease detection:";
+        sendBtn.textContent = "Send";
+        detectBtn.textContent = "Detect Disease";
+      } else {
+        langToggle.textContent = "ENGLISH";
+        chatTitle.textContent = "ଓଡ଼ିଆ AI ଚାଟ୍ ସହାୟକ";
+        uploadTitle.textContent = "କିସାନ ଫସଲ ରୋଗ ଚିହ୍ନଟ ପାଇଁ ଚିତ୍ର ଅପଲୋଡ୍ କରନ୍ତୁ:";
+        sendBtn.textContent = "ପଠାନ୍ତୁ";
+        detectBtn.textContent = "ରୋଗ ଚିହ୍ନଟ କରନ୍ତୁ";
+      }
+    });
+
+    themeBtn.addEventListener("click", () => {
+      document.body.classList.toggle("light-mode");
+      themeBtn.textContent = document.body.classList.contains("light-mode") ? "☀️" : "🌙";
+    });
+  </script>
+
+</body>
+</html>

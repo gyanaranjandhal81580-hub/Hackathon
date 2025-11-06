@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KISAN SATHI | Smart Farmer Assistant</title>
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Poppins", sans-serif; }
+    body {
+      height: 100vh;
+      width: 100%;
+      background: url("https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&q=80") no-repeat center center/cover;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      position: relative; color: #fff; overflow: hidden;
+    }
+    body::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      backdrop-filter: blur(6px);
+      z-index: 1;
+    }
+    .lang-toggle {
+      position: absolute; top: 25px; right: 35px; z-index: 3;
+      background: rgba(255,255,255,0.25); border: 2px solid rgba(255,255,255,0.4);
+      color: #fff; padding: 0.4rem 1rem; border-radius: 20px; cursor: pointer;
+      font-weight: 600; font-size: 0.95rem; backdrop-filter: blur(6px);
+      transition: all 0.3s ease;
+    }
+    .lang-toggle:hover { background: rgba(255,255,255,0.4); transform: scale(1.05); }
+
+    .content {
+      position: relative; z-index: 2; text-align: center; width: 100%; max-width: 450px; padding: 2rem;
+    }
+    h1 { font-size: 2.6rem; font-weight: 700; color: #a5d6a7; text-shadow: 2px 2px 10px rgba(0,0,0,0.4); margin-bottom: 0.3rem; }
+    h2 { font-size: 1.2rem; font-weight: 400; margin-bottom: 2rem; color: #fff; text-shadow: 1px 1px 8px rgba(0,0,0,0.3); }
+
+    .service-buttons { display: flex; flex-direction: column; gap: 1rem; }
+    .service-btn {
+      background-color: rgba(67,160,71,0.9); color: #fff; border: none; border-radius: 30px;
+      padding: 0.9rem; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(67,160,71,0.4);
+    }
+    .service-btn:hover { background-color: #2e7d32; transform: scale(1.05); }
+
+    form {
+      display: none; flex-direction: column; gap: 1.2rem; margin-top: 2rem;
+      animation: fadeIn 0.6s ease forwards;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity:1; transform: translateY(0); } }
+
+    label { text-align: left; font-size: 0.9rem; color: #eee; font-weight: 500; }
+    input[type="text"], input[type="password"] {
+      width: 100%; padding: 0.8rem 1rem; border: none; border-bottom: 2px solid rgba(255,255,255,0.7);
+      background: transparent; color: #fff; font-size: 1rem; outline: none; transition: all 0.3s ease;
+    }
+    input::placeholder { color: #ccc; }
+    input:focus { border-bottom-color: #a5d6a7; box-shadow: 0 4px 12px rgba(165,214,167,0.3); }
+
+    button[type="submit"] {
+      margin-top: 0.5rem; background-color: #43a047; color: #fff; padding: 0.9rem; border: none;
+      border-radius: 30px; cursor: pointer; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;
+      transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(67,160,71,0.4);
+    }
+    button[type="submit"]:hover { background-color: #2e7d32; transform: scale(1.05); box-shadow:0 6px 20px rgba(46,125,50,0.5); }
+
+    .footer-text { margin-top: 1.8rem; font-size: 0.9rem; color: #eee; }
+    .footer-text a { color: #a5d6a7; text-decoration: none; font-weight: 600; }
+    .footer-text a:hover { text-decoration: underline; }
+
+    @media (max-width: 480px) { h1 { font-size:2rem; } h2{ font-size:1rem; } }
+  </style>
+
+</head>
+
+<body>
+  <button class="lang-toggle" id="langBtn">ଓଡିଆ</button>
+
+  <div class="content">
+    <h1 id="title">KISAN SATHI</h1>
+    <h2 id="subtitle">Smart Farmer Assistant</h2>
+
+
+<!-- Service Buttons -->
+<div class="service-buttons" id="serviceButtons">
+  <button class="service-btn" data-service="chat">🧠 AI Chat</button>
+  <button class="service-btn" data-service="weather">☁ Weather</button>
+  <button class="service-btn" data-service="mandi">🌾 Mandi Prices</button>
+  <button class="service-btn" data-service="govt">🏛 Govt Schemes</button>
+  <button class="service-btn" data-service="crop">📷 Crop Help</button>
+</div>
+
+<!-- Hidden Login Form -->
+<form id="loginForm" method="POST">
+  <label for="phone" id="labelPhone">Mobile Number</label>
+  <input type="text" id="phone" name="phone" placeholder="Enter your mobile number" required />
+
+  <label for="password" id="labelPass">Password</label>
+  <input type="password" id="password" name="password" placeholder="Enter your password" required />
+
+  
+</form>
+<a href="login.html"><button type="submit" id="loginBtn">Login</button></a>
+
+<div class="footer-text" id="footerText">
+  <p>New farmer? <a href="register.html">Register here</a></p>
+</div>
+
+
+  </div>
+
+  <script>
+    const langBtn = document.getElementById("langBtn");
+    const title = document.getElementById("title");
+    const subtitle = document.getElementById("subtitle");
+    const labelPhone = document.getElementById("labelPhone");
+    const labelPass = document.getElementById("labelPass");
+    const loginBtn = document.getElementById("loginBtn");
+    const footerText = document.getElementById("footerText");
+    const serviceButtons = document.getElementById("serviceButtons");
+    const loginForm = document.getElementById("loginForm");
+
+    let isEnglish = true;
+
+    langBtn.addEventListener("click", () => {
+      isEnglish = !isEnglish;
+      if(isEnglish){
+        langBtn.textContent = "ଓଡିଆ";
+        title.textContent = "KISAN SATHI";
+        subtitle.textContent = "Smart Farmer Assistant";
+        document.querySelectorAll(".service-btn")[0].textContent = "🧠 AI Chat";
+        document.querySelectorAll(".service-btn")[1].textContent = "☁ Weather";
+        document.querySelectorAll(".service-btn")[2].textContent = "🌾 Mandi Prices";
+        document.querySelectorAll(".service-btn")[3].textContent = "🏛 Govt Schemes";
+        document.querySelectorAll(".service-btn")[4].textContent = "📷 Crop Help";
+        labelPhone.textContent = "Mobile Number";
+        labelPass.textContent = "Password";
+        loginBtn.textContent = "Login";
+        footerText.innerHTML = '<p>New farmer? <a href="register.html">Register here</a></p>';
+      } else {
+        langBtn.textContent = "ENGLISH";
+        title.textContent = "କିସାନ ସାଥି";
+        subtitle.textContent = "ସ୍ମାର୍ଟ ଚାଷୀ ସହାୟକ";
+        document.querySelectorAll(".service-btn")[0].textContent = "🧠 ଓଡ଼ିଆ AI ଚାଟ୍";
+        document.querySelectorAll(".service-btn")[1].textContent = "☁ ଆବହାଅବସ୍ଥା";
+        document.querySelectorAll(".service-btn")[2].textContent = "🌾 ମଣ୍ଡି ଦର";
+        document.querySelectorAll(".service-btn")[3].textContent = "🏛 ସରକାରୀ ଯୋଜନା";
+        document.querySelectorAll(".service-btn")[4].textContent = "📷 ଫସଲ ସହାୟତା";
+        labelPhone.textContent = "ମୋବାଇଲ୍ ନମ୍ବର";
+        labelPass.textContent = "ପାସୱାର୍ଡ";
+        loginBtn.textContent = "ଲଗଇନ୍";
+        footerText.innerHTML = '<p>ନୁତନ ଚାଷୀ? <a href="register.html">ପଞ୍ଜିକରଣ କରନ୍ତୁ</a></p>';
+      }
+    });
+
+    // Show login form when service clicked
+    document.querySelectorAll(".service-btn").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        serviceButtons.style.display="none";
+        subtitle.textContent = isEnglish ? "Please login to continue" : "ଦୟାକରି ଲଗଇନ୍ କରନ୍ତୁ";
+        loginForm.style.display="flex";
+      });
+    });
+
+    // Redirect to welcome.html on submit
+    loginForm.addEventListener("submit", (e)=>{
+      e.preventDefault();
+      window.location.href = "welcom.html";
+    });
+  </script>
+
+</body>
+</html>
