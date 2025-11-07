@@ -3,12 +3,11 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>KISAN SATHI | Government Schemes</title>
-  <link rel="stylesheet" href="welcom.html">
+  <title>KISAN SATHI | Schemes Portal</title>
   <style>
     *{margin:0;padding:0;box-sizing:border-box;font-family:"Poppins",sans-serif;}
     body{
-      background:url("https://images.unsplash.com/photo-1516979187457-637abb4f9353?auto=format&fit=crop&w=1600&q=80") center/cover no-repeat;
+      background:url("https://www.google.com/imgres?q=bank%20loan%20for%20farmers&imgurl=https%3A%2F%2Fwww.asiafarming.com%2Fwp-content%2Fuploads%2F2023%2F01%2FFarming-Loans-in-India2-1024x768.jpg&imgrefurl=https%3A%2F%2Fwww.asiafarming.com%2Ffarming-loans-in-india-how-to-apply-bank-process-rates-and-funding-for-agricultural-startups&docid=ScNY3l_OlCLb8M&tbnid=vNqes31YmFXGZM&vet=12ahUKEwiar5HIpN-QAxW5UGwGHVBvDXcQM3oECB4QAA..i&w=1024&h=768&hcb=2&ved=2ahUKEwiar5HIpN-QAxW5UGwGHVBvDXcQM3oECB4QAA") center/cover no-repeat;
       min-height:100vh;color:#fff;display:flex;flex-direction:column;align-items:center;
       transition:background 0.5s ease,color 0.3s ease;
     }
@@ -27,6 +26,14 @@
       font-size:0.9rem;backdrop-filter:blur(5px);transition:0.3s;
     }
     .controls button:hover{background:rgba(255,255,255,0.3);transform:scale(1.05);}
+    .mode-switch{
+      display:flex;gap:0.5rem;margin:1rem 0;z-index:3;
+    }
+    .mode-switch button{
+      background:rgba(255,255,255,0.18);border:none;padding:0.5rem 1rem;
+      border-radius:8px;color:#fff;cursor:pointer;transition:0.3s;
+    }
+    .mode-switch button.active{background:#4caf50;color:#fff;font-weight:600;}
     .search-box{margin:1rem 0;z-index:2;}
     .search-box input{
       padding:0.6rem 1rem;border-radius:20px;border:none;width:320px;outline:none;
@@ -65,7 +72,6 @@
 
     .scheme h3{margin:0 0 6px 0;color:#a5d6a7;font-size:1.05rem;}
     .scheme p{margin:0;font-size:0.94rem;line-height:1.4;color:inherit;opacity:0.95;}
-
     .scheme .meta{margin-top:8px;font-size:0.85rem;opacity:0.85;color:rgba(255,255,255,0.9);}
     .back-btn{
       position:fixed;bottom:18px;left:18px;background:rgba(255,255,255,0.18);
@@ -73,24 +79,20 @@
       backdrop-filter:blur(4px);transition:0.25s;z-index:5;
     }
     .back-btn:hover{background:rgba(255,255,255,0.32);}
-
-    body.light-mode{
-      color:#222;
-    }
+    body.light-mode{color:#222;}
     body.light-mode .scheme{
       background:rgba(255,255,255,0.92);
       color:#222;border-color:rgba(0,0,0,0.06);
-      box-shadow:none;
     }
     body.light-mode h1{color:#2e7d32;}
     @media (max-width:560px){
       .search-box input{width:90vw;}
-      header { padding:0 12px; }
+      header{padding:0 12px;}
     }
   </style>
 </head>
 <body>
-  <div class="controls" role="toolbar" aria-label="controls">
+  <div class="controls">
     <button id="themeBtn" title="Toggle theme">🌙</button>
     <button id="langBtn" title="Toggle language">ଓଡିଆ</button>
   </div>
@@ -100,109 +102,79 @@
     <p class="subtitle" id="pageSubtitle">Explore verified government initiatives that support farmers — click any card to open the official page.</p>
   </header>
 
+  <div class="mode-switch">
+    <button id="govBtn" class="active">🏛 Government</button>
+    <button id="pvtBtn">🏦 Private Banks</button>
+  </div>
+
   <div class="search-box">
     <input id="searchInput" type="search" placeholder="Search schemes..." aria-label="Search schemes">
   </div>
 
-  <div class="scheme-list" id="schemeList" aria-live="polite"></div>
+  <div class="scheme-list" id="schemeList"></div>
 
-  <a href="welcome.html"><button class="back-btn" onclick="window.location.href='welcome.html'">← Back</button></a>
+  <button class="back-btn" onclick="window.location.href='welcome.html'">← Back</button>
 
   <script>
-    // Elements
-    const themeBtn = document.getElementById('themeBtn');
-    const langBtn = document.getElementById('langBtn');
-    const schemeList = document.getElementById('schemeList');
-    const pageTitle = document.getElementById('pageTitle');
-    const pageSubtitle = document.getElementById('pageSubtitle');
-    const searchInput = document.getElementById('searchInput');
+    const themeBtn=document.getElementById('themeBtn');
+    const langBtn=document.getElementById('langBtn');
+    const govBtn=document.getElementById('govBtn');
+    const pvtBtn=document.getElementById('pvtBtn');
+    const schemeList=document.getElementById('schemeList');
+    const pageTitle=document.getElementById('pageTitle');
+    const pageSubtitle=document.getElementById('pageSubtitle');
+    const searchInput=document.getElementById('searchInput');
 
-    let isEnglish = true;
+    let isEnglish=true;
+    let showGov=true;
 
-    // Static list of official schemes (english + odia + official link)
-    const schemes = [
-      { link: "https://pmkisan.gov.in/", en: { name: "PM-KISAN Samman Nidhi", desc: "Provides ₹6000 per year to all eligible farmer families." }, od: { name: "ପିଏମ-କିସାନ ସମ୍ମାନ ନିଧି", desc: "ସମସ୍ତ ଯୋଗ୍ୟ ଚାଷୀ ପରିବାରଙ୍କୁ ପ୍ରତି ବର୍ଷ ₹6000 ସହାୟତା ଦିଆଯାଏ।" } },
-      { link: "https://pmfby.gov.in/", en: { name: "Pradhan Mantri Fasal Bima Yojana", desc: "Crop insurance to protect farmers against yield losses." }, od: { name: "ପ୍ରଧାନମନ୍ତ୍ରୀ ଫସଲ ବୀମା ଯୋଜନା", desc: "ଫସଲ କ୍ଷତି ବା ହାନି ରୁ ଚାଷୀଙ୍କୁ ସୁରକ୍ଷା ଦିଏ।" } },
-      { link: "https://pmksy.gov.in/", en: { name: "Pradhan Mantri Krishi Sinchai Yojana", desc: "Promotes water-use efficiency and irrigation infrastructure." }, od: { name: "ପ୍ରଧାନମନ୍ତ୍ରୀ କୃଷି ସିଞ୍ଚାଇ ଯୋଜନା", desc: "ସିଞ୍ଚାଇ ସୁବିଧା ଓ ଜଳ ବ୍ୟବହାର କ୍ଷମତା ବୃଦ୍ଧି।" } },
-      { link: "https://soilhealth.dac.gov.in/", en: { name: "Soil Health Card Scheme", desc: "Provides soil test-based fertilizer recommendations to farmers." }, od: { name: "ମାଟି ସ୍ୱାସ୍ଥ୍ୟ କାର୍ଡ ଯୋଜନା", desc: "ମାଟି ପରୀକ୍ଷା ଆଧାରିତ ଚାଷୀଙ୍କୁ ସୁପାରିଶ ଦିଆଯାଏ।" } },
-      { link: "https://www.enam.gov.in/web/", en: { name: "e-NAM (National Agriculture Market)", desc: "Online platform to link agricultural markets across India." }, od: { name: "ଇ-ନାମ (ଜାତୀୟ କୃଷି ବଜାର)", desc: "ଭାରତର ସମସ୍ତ କୃଷି ବଜାରକୁ ଅନଲାଇନ ମାଧ୍ୟମରେ ଯୋଡ଼େ।" } },
-      { link: "https://nmsa.dac.gov.in/", en: { name: "National Mission for Sustainable Agriculture", desc: "Focuses on climate-resilient agricultural practices." }, od: { name: "ସୁସ୍ଥିର କୃଷି ଜାତୀୟ ମିଶନ", desc: "ଜଳବାୟୁ ସହିଷ୍ଣୁ କୃଷି ପ୍ରକ୍ରିୟାକୁ ପ୍ରୋତ୍ସାହନ।" } },
-      { link: "https://agricoop.gov.in/en/MKSP", en: { name: "Mahila Kisan Sashaktikaran Pariyojana", desc: "Empowers women farmers through skill development." }, od: { name: "ମହିଳା କିସାନ ସଶକ୍ତିକରଣ ପରିଯୋଜନା", desc: "ମହିଳା ଚାଷୀମାନଙ୍କୁ କୌଶଳ ଉନ୍ନତି ମାଧ୍ୟମରେ ସଶକ୍ତ କରେ।" } },
-      { link: "https://agricoop.gov.in/en/SMAM", en: { name: "Sub-Mission on Agricultural Mechanization", desc: "Supports farm mechanization for increased productivity." }, od: { name: "କୃଷି ଯାନୀକରଣ ଉପ-ମିଶନ", desc: "କୃଷି ଯନ୍ତ୍ରପାତି ମାଧ୍ୟମରେ ଉତ୍ପାଦନ ବୃଦ୍ଧି।" } },
-      { link: "https://rkvy.nic.in/", en: { name: "Rashtriya Krishi Vikas Yojana", desc: "Promotes holistic development of agriculture and allied sectors." }, od: { name: "ରାଷ୍ଟ୍ରୀୟ କୃଷି ବିକାଶ ଯୋଜନା", desc: "କୃଷି ଓ ସଂଶ୍ଳିଷ୍ଟ ଖାତାର ସମଗ୍ର ବିକାଶ।" } },
-      { link: "https://agricoop.gov.in/en/PKVY", en: { name: "Paramparagat Krishi Vikas Yojana", desc: "Encourages organic farming for sustainable agriculture." }, od: { name: "ପାରମ୍ପରିକ କୃଷି ବିକାଶ ଯୋଜନା", desc: "ସୁସ୍ଥିର କୃଷି ପାଇଁ ଜୈବିକ ଚାଷକୁ ପ୍ରୋତ୍ସାହନ।" } }
+    // Government Schemes
+    const govSchemes=[
+      {link:"https://pmkisan.gov.in/",en:{name:"PM-KISAN Samman Nidhi",desc:"Provides ₹6000 per year to all eligible farmer families."},od:{name:"ପିଏମ-କିସାନ ସମ୍ମାନ ନିଧି",desc:"ସମସ୍ତ ଯୋଗ୍ୟ ଚାଷୀ ପରିବାରଙ୍କୁ ପ୍ରତି ବର୍ଷ ₹6000 ସହାୟତା।"}},
+      {link:"https://pmfby.gov.in/",en:{name:"Pradhan Mantri Fasal Bima Yojana",desc:"Crop insurance to protect farmers against yield losses."},od:{name:"ପ୍ରଧାନମନ୍ତ୍ରୀ ଫସଲ ବୀମା ଯୋଜନା",desc:"ଫସଲ କ୍ଷତି ରୁ ସୁରକ୍ଷା।"}},
+      {link:"https://pmksy.gov.in/",en:{name:"PM Krishi Sinchai Yojana",desc:"Promotes water-use efficiency and irrigation infrastructure."},od:{name:"କୃଷି ସିଞ୍ଚାଇ ଯୋଜନା",desc:"ସିଞ୍ଚାଇ ସୁବିଧା ଓ ଜଳ ବ୍ୟବହାର ବୃଦ୍ଧି।"}},
+      {link:"https://soilhealth.dac.gov.in/",en:{name:"Soil Health Card Scheme",desc:"Provides soil test-based fertilizer recommendations."},od:{name:"ମାଟି ସ୍ୱାସ୍ଥ୍ୟ କାର୍ଡ",desc:"ମାଟି ପରୀକ୍ଷା ଆଧାରିତ ସୁପାରିଶ।"}},
+      {link:"https://www.enam.gov.in/web/",en:{name:"e-NAM Market",desc:"Online platform linking agri markets across India."},od:{name:"ଇ-ନାମ ବଜାର",desc:"ଭାରତର ସମସ୍ତ ବଜାରକୁ ଯୋଡ଼େ।"}},
+      {link:"https://nmsa.dac.gov.in/",en:{name:"National Mission for Sustainable Agriculture",desc:"Focus on climate-resilient farming."},od:{name:"ସୁସ୍ଥିର କୃଷି ମିଶନ",desc:"ଜଳବାୟୁ ସହିଷ୍ଣୁ ଚାଷ।"}}
     ];
 
-    // Render scheme cards
-    function renderSchemes(list = schemes) {
-      schemeList.innerHTML = '';
-      list.forEach(s => {
-        const data = isEnglish ? s.en : s.od;
-        const a = document.createElement('a');
-        a.className = 'scheme';
-        a.href = s.link;
-        a.target = '_blank';
-        a.rel = 'noopener noreferrer';
-        a.innerHTML = `
-          <div class="scheme-text">
-            <h3>${escapeHtml(data.name)}</h3>
-            <p>${escapeHtml(data.desc)}</p>
-            <div class="meta">${isEnglish ? 'Official site' : 'ଅଧିକାରିକ ସାଇଟ'}</div>
-          </div>
-        `;
+    // Private Bank Schemes (Live links)
+    const pvtSchemes=[
+      {link:"https://www.hdfcbank.com/personal/borrow/popular-loans/ruralloans/agri-allied-financing-program",en:{name:"HDFC Agri Loan",desc:"Crop loans and equipment financing for farmers."},od:{name:"ଏଚଡିଏଫସି କୃଷି ଋଣ",desc:"ଚାଷ ଓ ଯନ୍ତ୍ରପାତି ପାଇଁ ଋଣ ସୁବିଧା।"}},
+      {link:"https://www.icicibank.com/rural/loans/farmer-finance",en:{name:"ICICI Farmer Loan",desc:"Tailored financial support for farming needs."},od:{name:"ଆଇସିଆଇସିଆଇ ଚାଷୀ ଋଣ",desc:"ଚାଷ ପାଇଁ ନିର୍ଦିଷ୍ଟ ଆର୍ଥିକ ସହାୟତା।"}},
+      {link:"https://www.axis.bank.in/agri-and-rural/loans",en:{name:"Axis Agriculture Loan",desc:"Loans for agri equipment, tractors, irrigation and storage."},od:{name:"ଏକ୍ସିସ କୃଷି ଋଣ",desc:"ଯନ୍ତ୍ର, ସିଞ୍ଚାଇ ଓ ସଞ୍ଚୟ ପାଇଁ ଋଣ।"}},
+      {link:"https://www.kotak.com/en/business/loans/agri-project-loan.html",en:{name:"Kotak Mahindra Agri Loan",desc:"Flexible crop financing and agri credit lines."},od:{name:"କୋଟକ ମହିନ୍ଦ୍ରା କୃଷି ଋଣ",desc:"ସୁବିଧାଜନକ ଫସଲ ଋଣ ବିକଳ୍ପ।"}},
+      {link:"https://www.indusind.bank.in/in/en/personal/loans/agri-loan.html",en:{name:"IndusInd Tractor Loan",desc:"Loans for purchasing tractors and farm vehicles."},od:{name:"ଇଣ୍ଡସଇଣ୍ଡ ଟ୍ରାକ୍ଟର ଋଣ",desc:"ଟ୍ରାକ୍ଟର ଓ ଚାଷ ଯାନ ର ପାଇଁ ଋଣ।"}}
+    ];
+
+    function escapeHtml(str){return String(str).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+
+    function renderSchemes(list){
+      schemeList.innerHTML='';
+      list.forEach(s=>{
+        const d=isEnglish?s.en:s.od;
+        const a=document.createElement('a');
+        a.className='scheme';
+        a.href=s.link;
+        a.target='_blank';
+        a.innerHTML=`<h3>${escapeHtml(d.name)}</h3><p>${escapeHtml(d.desc)}</p><div class='meta'>${isEnglish?'Official site':'ଅଧିକାରିକ ସାଇଟ'}</div>`;
         schemeList.appendChild(a);
       });
     }
 
-    // Basic escape to avoid accidental HTML injection (good practice for static content too)
-    function escapeHtml(str) {
-      return String(str).replace(/[&<>"']/g, function (m) {
-        return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m];
-      });
+    function updateView(){
+      const list=showGov?govSchemes:pvtSchemes;
+      pageTitle.textContent=isEnglish?(showGov?'Government Schemes for Farmers':'Private Bank Schemes for Farmers'):(showGov?'ଚାଷୀ ପାଇଁ ସରକାରୀ ଯୋଜନା':'ଚାଷୀ ପାଇଁ ବେସରକାରୀ ବ୍ୟାଙ୍କ ଯୋଜନା');
+      pageSubtitle.textContent=isEnglish?(showGov?'Explore verified government initiatives that support farmers.':'View private bank financial schemes for farmers.'):(showGov?'ସରକାରୀ ଯୋଜନା ଦେଖନ୍ତୁ।':'ବେସରକାରୀ ବ୍ୟାଙ୍କ ଯୋଜନା ଦେଖନ୍ତୁ।');
+      renderSchemes(list);
     }
 
-    // Initial render
-    renderSchemes();
+    themeBtn.onclick=()=>{document.body.classList.toggle('light-mode');themeBtn.textContent=document.body.classList.contains('light-mode')?'☀️':'🌙';};
+    langBtn.onclick=()=>{isEnglish=!isEnglish;langBtn.textContent=isEnglish?'ଓଡିଆ':'ENGLISH';updateView();};
+    govBtn.onclick=()=>{showGov=true;govBtn.classList.add('active');pvtBtn.classList.remove('active');updateView();};
+    pvtBtn.onclick=()=>{showGov=false;pvtBtn.classList.add('active');govBtn.classList.remove('active');updateView();};
 
-    // Theme toggle
-    themeBtn.addEventListener('click', () => {
-      document.body.classList.toggle('light-mode');
-      themeBtn.textContent = document.body.classList.contains('light-mode') ? '☀️' : '🌙';
-    });
-
-    // Language toggle
-    langBtn.addEventListener('click', () => {
-      isEnglish = !isEnglish;
-      langBtn.textContent = isEnglish ? 'ଓଡିଆ' : 'ENGLISH';
-      pageTitle.textContent = isEnglish ? 'Government Schemes for Farmers' : 'ଚାଷୀମାନଙ୍କ ପାଇଁ ସରକାରୀ ଯୋଜନା';
-      pageSubtitle.textContent = isEnglish ? 'Explore verified government initiatives that support farmers — click any card to open the official page.' : 'ଚାଷୀଙ୍କୁ ସହାୟତା କରୁଥିବା ଅଧିକାରିକ ସରକାରୀ ପ୍ରକଳ୍ପଗୁଡିକ ଦେଖନ୍ତୁ — କୌଣସି କାର୍ଡ୍‌କୁ ଖୋଲି ଅଧିକାରିକ ସାଇଟ୍ ଦେଖନ୍ତୁ ।';
-      searchInput.placeholder = isEnglish ? 'Search schemes...' : 'ଯୋଜନା ସନ୍ଧାନ କରନ୍ତୁ...';
-      renderSchemes();
-      applyFilter(); // maintain filter after language change
-    });
-
-    // Search filter
-    function applyFilter() {
-      const q = (searchInput.value || '').trim().toLowerCase();
-      const items = Array.from(document.querySelectorAll('.scheme'));
-      if (!q) {
-        items.forEach(i => i.style.display = '');
-        return;
-      }
-      items.forEach(item => {
-        const txt = item.textContent.toLowerCase();
-        item.style.display = txt.includes(q) ? '' : 'none';
-      });
-    }
-
-    searchInput.addEventListener('input', applyFilter);
-
-    // Accessibility: allow Enter on focused search to act
-    searchInput.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') {
-        applyFilter();
-      }
-    });
+    updateView();
   </script>
 </body>
 </html>
