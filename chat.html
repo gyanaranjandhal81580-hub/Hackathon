@@ -1,157 +1,294 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KISAN SATHI | AI Chat</title>
-  <style>
-    * { margin:0; padding:0; box-sizing:border-box; font-family:"Poppins", sans-serif; }
-    body { background: url("https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1600&q=80") no-repeat center center/cover; color:#fff; display:flex; flex-direction:column; align-items:center; min-height:100vh; }
-    body::before { content:""; position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.45); backdrop-filter:blur(6px); z-index:-1; }
-    .container { margin-top:80px; width:90%; max-width:800px; background:rgba(0,0,0,0.55); border-radius:20px; padding:20px; }
-    h1 { text-align:center; color:#a5d6a7; margin-bottom:20px; }
-    #chatWindow { background:rgba(255,255,255,0.1); border-radius:12px; height:250px; overflow-y:auto; padding:10px; margin-bottom:15px; display:flex; flex-direction:column; }
-    .message { margin:8px 0; padding:10px 15px; border-radius:15px; max-width:75%; word-wrap:break-word; }
-    .userMsg { background:rgba(165,214,167,0.8); color:#000; align-self:flex-end; }
-    .aiMsg { background:rgba(255,255,255,0.25); color:#fff; align-self:flex-start; }
-    #userInput { width:75%; padding:10px 15px; border-radius:20px; border:none; outline:none; margin-right:10px; }
-    #sendBtn, #detectBtn, #langToggle { padding:10px 15px; border:none; border-radius:20px; cursor:pointer; margin-top:5px; background:rgba(165,214,167,0.8); color:#000; font-weight:600; }
-    #cropImageInput { margin-top:10px; }
-    .chat-controls { display:flex; justify-content:center; margin-bottom:10px; flex-wrap:wrap; gap:10px; }
-    body.light-mode { color:#222; }
-    body.light-mode .container { background:rgba(255,255,255,0.85); color:#222; }
-    body.light-mode #chatWindow { background:rgba(0,0,0,0.05); color:#222; }
-    body.light-mode #sendBtn, body.light-mode #detectBtn, body.light-mode #langToggle { background:#2e7d32; color:#fff; }
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>🌾 Kisan Sathi — Quick Chat (Odia + English)</title>
+<style>
+  :root{
+    --accent:#2e7d32;
+    --light:#e8f5e9;
+    --muted:#6b6b6b;
+    --glass: rgba(255,255,255,0.85);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "Noto Sans Oriya", sans-serif;}
+  body{
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    background: url('data:image/jpeg;base64,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') center/cover no-repeat fixed;
+    transition: background 0.7s ease;
+    color:#08321a;
+  }
+
+  header{
+    background:linear-gradient(90deg,var(--accent),#1b5e20);
+    color:#fff;
+    padding:14px;
+    display:flex;
+    gap:12px;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .brand { display:flex; gap:12px; align-items:center; }
+  .logo {
+    width:44px;height:44px;border-radius:10px;background:#fff;display:flex;align-items:center;justify-content:center;color:var(--accent);font-weight:700;box-shadow:0 4px 12px rgba(0,0,0,0.15);
+  }
+  .title { font-size:1.15rem; font-weight:700; letter-spacing:0.2px;}
+  .subtitle { font-size:0.85rem; opacity:0.92; }
+
+  .controls { display:flex; gap:10px; align-items:center; }
+  .langToggle { background:transparent; color:#fff; border:1px solid rgba(255,255,255,0.18); padding:6px 10px; border-radius:8px; cursor:pointer; font-weight:600; }
+  .homeBtn { background:rgba(255,255,255,0.12); color:#fff; padding:6px 10px; border-radius:8px; border:none; cursor:pointer; font-weight:600; }
+
+  /* layout */
+  .wrap { display:grid; grid-template-columns: 1fr 360px; gap:18px; padding:18px; width:100%; max-width:1200px; margin:18px auto; }
+  @media (max-width:980px){ .wrap { grid-template-columns: 1fr; padding:12px; } .rightCol{order:-1;} }
+
+  /* left: chat area */
+  .chatArea {
+    background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.92));
+    border-radius:16px; padding:12px; height:75vh; display:flex; flex-direction:column; box-shadow:0 10px 30px rgba(0,0,0,0.12);
+  }
+  .chatHeader { display:flex; align-items:center; gap:10px; padding:8px 6px; border-bottom:1px solid rgba(0,0,0,0.06); }
+  .chatHeader h3{ margin:0; font-size:1rem; color:var(--accent); }
+  .chatLog { flex:1; overflow:auto; padding:12px; display:flex; flex-direction:column; gap:10px; }
+  .bubble { max-width:78%; padding:12px 14px; border-radius:14px; line-height:1.4; box-shadow:0 4px 12px rgba(0,0,0,0.04); }
+  .user { align-self:flex-end; background:var(--light); color:#08321a; border-bottom-right-radius:2px;}
+  .bot { align-self:flex-start; background:#fff; color:#08321a; border-bottom-left-radius:2px; border:1px solid rgba(0,0,0,0.04); }
+
+  .inputArea { display:flex; gap:8px; padding:12px; border-top:1px solid rgba(0,0,0,0.06); align-items:center; }
+  .qlabel { font-size:0.9rem; color:var(--muted); }
+  .inputBtn { padding:10px 14px; background:var(--accent); color:#fff; border:none; border-radius:10px; cursor:pointer; font-weight:700; }
+
+  /* right: quick queries */
+  .rightCol { display:flex; flex-direction:column; gap:12px; height:75vh; }
+  .panel { background: rgba(255,255,255,0.95); border-radius:14px; padding:12px; box-shadow:0 8px 20px rgba(0,0,0,0.06); overflow:auto; }
+  .panel h4 { margin-bottom:10px; color:var(--accent); }
+  .grid { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; }
+  @media(max-width:480px){ .grid{grid-template-columns:repeat(1,1fr);} }
+
+  .quickBtn {
+    background:#f5fff5; border:1px solid rgba(46,125,50,0.08); padding:10px; border-radius:10px; cursor:pointer;
+    display:flex; align-items:center; gap:8px; transition:transform 0.15s, box-shadow 0.15s;
+  }
+  .quickBtn:hover{ transform:translateY(-4px); box-shadow:0 12px 24px rgba(0,0,0,0.08); }
+  .quickBtn .tag { width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,#a5d6a7,#66bb6a); display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800; }
+  .quickBtn .text { font-size:0.92rem; color:#0c3b1a; font-weight:600; text-align:left; }
+
+  .footerNote { font-size:0.82rem; color:#4b4b4b; text-align:center; padding:6px 0; }
+
+  /* selected pill */
+  .activePill { outline:3px solid rgba(46,125,50,0.1); box-shadow:0 12px 30px rgba(46,125,50,0.08) !important; transform:none !important; }
+
+  /* Odia font styling when Odia mode */
+  .odiaText { font-family: "Noto Sans Oriya", "Noto Sans", sans-serif; color:#06442a; font-weight:700; }
+
+</style>
 </head>
 <body>
-  <div class="container">
-    <h1 id="chatTitle">AI Chat Assistant</h1>
 
-
-<div id="chatWindow"></div>
-
-<div class="chat-controls">
-  <input type="text" id="userInput" placeholder="Ask about your crops..." />
-  <button id="sendBtn">Send</button>
-</div>
-
-<div>
-  <h3 id="uploadTitle">Or upload crop image for disease detection:</h3>
-  <input type="file" id="cropImageInput" accept="image/*" />
-  <button id="detectBtn">Detect Disease</button>
-  <p id="diseaseResult"></p>
-</div>
-
-<button id="langToggle">ଓଡିଆ</button>
-<button id="themeBtn">🌙</button>
-
-
+<header>
+  <div class="brand">
+    <div class="logo">KS</div>
+    <div>
+      <div class="title">Kisan Sathi</div>
+      <div class="subtitle">Quick Chat • କୃଷକ ସାଥୀ</div>
+    </div>
   </div>
 
-  <script>
-    const chatWindow = document.getElementById("chatWindow");
-    const userInput = document.getElementById("userInput");
-    const sendBtn = document.getElementById("sendBtn");
-    const cropImageInput = document.getElementById("cropImageInput");
-    const detectBtn = document.getElementById("detectBtn");
-    const diseaseResult = document.getElementById("diseaseResult");
-    const langToggle = document.getElementById("langToggle");
-    const themeBtn = document.getElementById("themeBtn");
-    const chatTitle = document.getElementById("chatTitle");
-    const uploadTitle = document.getElementById("uploadTitle");
+  <div class="controls">
+    <button class="langToggle" id="langToggle">Odia / ଓଡ଼ିଆ</button>
+    <button class="homeBtn" onclick="location.href='#'">Home</button>
+  </div>
+</header>
 
-    let isEnglish = true;
+<div class="wrap">
+  <!-- CHAT AREA -->
+  <div class="chatArea">
+    <div class="chatHeader">
+      <h3 id="chatTitle">Quick Chat — Tap a question on the right</h3>
+    </div>
 
-    // Realistic AI responses
-    const aiResponses = [
-      "Water your crops early in the morning to reduce evaporation.",
-      "Rotate your crops every season to maintain soil fertility.",
-      "Use organic fertilizers to enhance soil health.",
-      "Monitor for pests regularly to prevent outbreaks.",
-      "Ensure proper spacing between plants to improve airflow.",
-      "Mulching can help retain soil moisture and reduce weeds.",
-      "Prune damaged leaves to prevent disease spread.",
-      "Use drip irrigation for efficient water usage.",
-      "Plant disease-resistant crop varieties when possible.",
-      "Test your soil pH and nutrients for optimal growth.",
-      "Avoid over-fertilization, as it can harm plants.",
-      "Companion planting can reduce pests naturally.",
-      "Harvest crops at the right maturity for best quality.",
-      "Keep farm tools clean to prevent disease transmission.",
-      "Monitor weather forecasts to plan irrigation and sowing.",
-      "Store harvested crops in a cool, dry place.",
-      "Rotate livestock grazing to prevent soil degradation.",
-      "Use neem oil or bio-pesticides for organic pest control.",
-      "Keep records of crop growth, diseases, and yields.",
-      "Plant cover crops to improve soil structure and fertility."
-    ];
+    <div id="chatLog" class="chatLog">
+      <!-- chat bubbles inserted here -->
+      <div class="bubble bot">👋 Hello! Tap any quick query on the right to get instant advice in English or Odia.</div>
+    </div>
 
-    function addMessage(text, sender) {
-      const msgDiv = document.createElement("div");
-      msgDiv.textContent = text;
-      msgDiv.classList.add("message");
-      msgDiv.classList.add(sender === "user" ? "userMsg" : "aiMsg");
-      chatWindow.appendChild(msgDiv);
-      chatWindow.scrollTop = chatWindow.scrollHeight;
+    <div class="inputArea">
+      <div class="qlabel">Tip: Tap questions instead of typing</div>
+      <div style="flex:1"></div>
+      <button class="inputBtn" onclick="clearChat()">Clear</button>
+    </div>
+  </div>
+
+  <!-- RIGHT COLUMN: QUICK QUERIES -->
+  <div class="rightCol">
+    <div class="panel">
+      <h4>Quick Queries / ପ୍ରଶ୍ନ</h4>
+      <div id="quickGrid" class="grid"></div>
+    </div>
+
+    <div class="panel footerNote">
+      Select language: Click <strong>Odia / ଓଡ଼ିଆ</strong> to toggle Odia replies. Background will change per topic.
+    </div>
+  </div>
+</div>
+
+<script>
+/*
+  30 predefined queries object:
+  key => {labelEN, labelOD, answerEN, answerOD, bg}
+*/
+const topics = [
+  { key:"rice", labelEN:"How to grow rice?", labelOD:"ଧାନ କିପରି ଉଗାଇବେ?", answerEN:"Maintain ~5 cm water during early growth, keep fields weed-free, and transplant healthy seedlings.", answerOD:"ଆରମ୍ଭ ଅବସ୍ଥାରେ ୫ ସେମି ପାଣି ରଖନ୍ତୁ, ଜଙ୍ଗଲ ହଟାନ୍ତୁ ଏବଂ ସୁସ୍ଥ ଲାଗ ଚାଷ କରନ୍ତୁ।", bg:"https://images.unsplash.com/photo-1504198266280-5d6f2f3d0b1b?auto=format&fit=crop&w=1600&q=60"},
+
+  { key:"wheat", labelEN:"Wheat cultivation tips", labelOD:"ଗେହूँ ଚାଷ ସୁପାରିଶ", answerEN:"Sow timely, maintain soil fertility, and monitor for rust and pests regularly.", answerOD:"ସମୟରେ ଜମିରେ ବିଆ ଦିଅନ୍ତୁ, ମାଟି ଉର୍ବରତା ରଖନ୍ତୁ, ଛତା ଓ ପୋକା ପାଇଁ ଯାଞ୍ଚ କରନ୍ତୁ।", bg:"https://images.unsplash.com/photo-1504893524553-b85555a14f7f?auto=format&fit=crop&w=1600&q=60"},
+
+  { key:"maize", labelEN:"Maize (corn) guidance", labelOD:"ମକା ଚାଷ ପରାମର୍ଶ", answerEN:"Sow early, use nitrogen-rich fertilizer, and ensure good spacing for roots.", answerOD:"ଆଗୁଆଁ ବିଆ ଦିଅନ୍ତୁ, ନାଇଟ୍ରୋଜେନ ସାର ବ୍ୟବହାର କରନ୍ତୁ, ପ୍ଲାଣ୍ଟ ମଧ୍ୟରେ ଯଥେଷ୍ଟ ମାପ ରଖନ୍ତୁ।", bg:"https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1600&q=60"},
+
+  { key:"pulses", labelEN:"Pulses & legumes tips", labelOD:"ଡାଲି ଚାଷ ପରାମର୍ଶ", answerEN:"Use Rhizobium inoculant for better nitrogen fixation and rotate crops to maintain soil health.", answerOD:"ରାଇଜୋବିୟମ୍ ବ୍ୟବହାରକରନ୍ତୁ ଏବଂ ଫସଲ ପରିବର୍ତ୍ତନ କରନ୍ତୁ।", bg:"https://images.unsplash.com/photo-1606012186731-4f0d4f403b2b?auto=format&fit=crop&w=1600&q=60"},
+
+  { key:"groundnut", labelEN:"Groundnut (peanut) care", labelOD:"ବାଦାମ ଚାଷ", answerEN:"Ensure well-drained sandy loam, apply gypsum at flowering, and harvest on maturity.", answerOD:"ଭଲ ନିସ୍କାସନ ମାଟି ରଖନ୍ତୁ, ଫୁଲ ଅବସ୍ଥାରେ ଜିପସମ୍ ଦିଅନ୍ତୁ, ସମୟରେ କାଟନ୍ତୁ।", bg:"https://images.unsplash.com/photo-1549893076-eca0b2d2d40b?auto=format&fit=crop&w=1600&q=60"},
+
+  { key:"irrigation", labelEN:"Irrigation tips", labelOD:"ସିଚାଇ ପଦ୍ଧତି", answerEN:"Prefer drip/sprinkler for water efficiency; schedule irrigation based on crop stage.", answerOD:"ଜଳ ସଂରକ୍ଷଣ ପାଇଁ ଡ୍ରିପ୍/ସ୍ପ୍ରିଙ୍କଲର ବ୍ୟବହାର କରନ୍ତୁ; ଫସଲ ଅବସ୍ଥା ଅନୁସାରେ ସିଚାଇ ନିର୍ଦ୍ଧାରିତ କରନ୍ତୁ।", bg:"https://images.unsplash.com/photo-1582719478250-3c8e5d2cf70b?auto=format&fit=crop&w=1600&q=60"},
+
+  { key:"fertilizer", labelEN:"Fertilizer recommendations", labelOD:"ସାର ପରାମର୍ଶ", answerEN:"Apply fertilizers based on soil test; follow recommended N-P-K ratios and avoid overuse.", answerOD:"ମାଟି ପରୀକ୍ଷା ଅନୁଯାୟୀ ସାର ଦିଅନ୍ତୁ; N-P-K ସମତୁଳିତ ରଖନ୍ତୁ এবং ଅଧିକ ଦିଅନ୍ତୁ ନାହିଁ।", bg:"https://images.unsplash.com/photo-1589571894960-20bbe2828b2f?auto=format&fit=crop&w=1600&q=60"},
+
+  { key:"soil_test", labelEN:"Soil testing", labelOD:"ମାଟି ପରୀକ୍ଷା", answerEN:"Test soil yearly to know pH and nutrient levels; apply corrections accordingly.", answerOD:"ପ୍ରତିବର୍ଷ ମାଟି ଯାଞ୍ଚ କରନ୍ତୁ; pH ଏବଂ ପୋଷକ ଧାରା ଅନୁସାରେ ସାର ଦିଅନ୍ତୁ।", bg:"https://images.unsplash.com/photo-1541676004571-6c3a0d4d6f0e?auto=format&fit=crop&w=1600&q=60"},
+
+  { key:"pest", labelEN:"Pest control", labelOD:"ପୋକା ନିୟନ୍ତ୍ରଣ", answerEN:"Inspect often, use pheromone traps, and prefer neem-based or bio pesticides before chemicals.", answerOD:"ନିୟମିତ ଯାଞ୍ଚ କରନ୍ତୁ, ପେରୋମୋନ ଟ୍ରାପ୍ ବ୍ୟବହାର କରନ୍ତୁ, ପୂର୍ବରୁ ଜୈବିକ ଉପାୟ ଅପନାୟନ କରନ୍ତୁ।", bg:"https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=1600&q=60"},
+
+  { key:"fungus", labelEN:"Fungal disease advice", labelOD:"ଛତା ରୋଗ ପରାମର୍ଶ", answerEN:"Avoid water stagnation, use resistant varieties, and apply recommended fungicides when needed.", answerOD:"ଜଳଜମା ରୋକନ୍ତୁ, ସହିଷ୍ଣୁ ପ୍ରଜାତି ବ୍ୟବହାର କରନ୍ତୁ, ଆବଶ୍ୟକତା ଅନୁଯାୟୀ ଫଙ୍ଗାସାଇଡ୍ ବ୍ୟବହାର କରନ୍ତୁ।", bg:"https://images.unsplash.com/photo-1599058917218-19f4bd6a4d39?auto=format&fit=crop&w=1600&q=60"},
+
+  { key:"compost", labelEN:"Making compost", labelOD:"କମ୍ପୋଷ୍ଟ କିପରି ତିଆରି କରିବେ", answerEN:"Use farm waste, cow dung, and maintain moisture; turn pile regularly to speed decomposition.", answerOD:"ଚାଷ ଅବସେଷ, ଗୋବର ବ୍ୟବହାର କରନ୍ତୁ; ଆର୍ଦ୍ରତା ରଖନ୍ତୁ ଏବଂ ପାଇଲ୍ ଘୁମାନ୍ତୁ।", bg:"https://images.unsplash.com/photo-1576765607928-02f6a0e3f3a1?auto=format&fit=crop&w=1600&q=60"},
+
+  { key:"organic", labelEN:"Organic farming tips", labelOD:"ଜୈବିକ ଚାଷ ପରାମର୍ଶ", answerEN:"Use biofertilizers, compost, and crop rotation to maintain long-term soil health.", answerOD:"ଜୈବ ସାର, କମ୍ପୋଷ୍ଟ ଏବଂ ଫସଲ ପରିବର୍ତ୍ତନ ବ୍ୟବହାର କରନ୍ତୁ।", bg:"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1600&q=60"},
+
+  { key:"drought", labelEN:"Drought management", labelOD:"ଶୁଖା ପ୍ରବନ୍ଧନ", answerEN:"Adopt drought-tolerant crops, save rainwater, and use drip irrigation to conserve moisture.", answerOD:"ଶୁଖା-ସହିଷ୍ଣୁ ଫସଲ ଲଗାନ୍ତୁ, ବର୍ଷାଜଳ ସଂଗ୍ରହ କରନ୍ତୁ ଏବଂ ଡ୍ରିପ୍ ବ୍ୟବହାର କରନ୍ତୁ।", bg:"https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=1600&q=60"},
+
+  { key:"flood", labelEN:"Flood advice", labelOD:"ବନ୍ୟା ପରାମର୍ଶ", answerEN:"Plant flood-resistant crops, ensure quick drainage and protect seedlings on raised beds.", answerOD:"ବନ୍ୟା-ସହିଷ୍ଣୁ ଫସଲ ପାଇଁ ଚାଷ କରନ୍ତୁ, ଶୀଘ୍ର ଜଳ ନିସ୍କାସନ ବ୍ୟବସ୍ଥା କରନ୍ତୁ।", bg:"https://images.unsplash.com/photo-1435224654926-ecc9f7fa028c?auto=format&fit=crop&w=1600&q=60"},
+
+  { key:"weather", labelEN:"Weather planning", labelOD:"ଆବହା ପ୍ରସ୍ତୁତି", answerEN:"Check forecasts before sowing/harvest; plan irrigation and spraying accordingly.", answerOD:"ବିଆ କିମ୍ବା କାଟିବା ପୂର୍ବରୁ ପୂର୍ବାଭାସ ଦେଖନ୍ତୁ; ସିଚାଇ ଏବଂ ଛିଟା ଯୋଜନା କରନ୍ତୁ।", bg:"https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1600&q=60"},
+
+  { key:"market", labelEN:"Market & pricing", labelOD:"ବଜାର ଓ ମୂଲ୍ୟ", answerEN:"Use e-NAM and local mandi prices to decide when and where to sell for better returns.", answerOD:"e-NAM ଏବଂ ସ୍ଥାନୀୟ ମଣ୍ଡି ଦର ଚେକ କରନ୍ତୁ; ଭଲ ମୂଲ୍ୟ ପାଇଁ ପ୍ରତିଷ୍ଠିତ ସ୍ଥାନ ଚୟନ କରନ୍ତୁ।", bg:"https://images.unsplash.com/photo-1505751172876-fa1923c5c528?auto=format&fit=crop&w=1600&q=60"},
+
+  { key:"storage", labelEN:"Storage tips", labelOD:"ସଂଗ୍ରହ ପରାମର୍ଶ", answerEN:"Dry grains before storage; keep in moisture-proof containers and pest-free environment.", answerOD:"ସଂରକ୍ଷଣ ପୂର୍ବରୁ ଶସ୍ୟ ଭଲଭାବେ ଶୁଖାନ୍ତୁ; ଆର୍ଦ୍ରତା-ମୁକ୍ତ ବାହାରରେ ରଖନ୍ତୁ।", bg:"https://images.unsplash.com/photo-1542831371-d531d36971e6?auto=format&fit=crop&w=1600&q=60"},
+
+  { key:"harvest", labelEN:"Harvesting advice", labelOD:"କାଟିବା ଉପାୟ", answerEN:"Harvest at correct maturity, avoid wet cutting, and dry produce properly to retain quality.", answerOD:"ଠିକ ପକାପାକ ରେ ଫସଲ କାଟନ୍ତୁ; ଭିଜା ଅବସ୍ଥାରେ ନ କାଟନ୍ତୁ; ଭଲଭାବେ ଶୁଖାନ୍ତୁ।", bg:"https://images.unsplash.com/photo-1505394506379-8e5a9a3b5f9d?auto=format&fit=crop&w=1600&q=60"},
+
+  { key:"postharvest", labelEN:"Postharvest care", labelOD:"କାଟିବା ପରେ ସୁରକ୍ଷା", answerEN:"Clean, sort and dry produce; use proper packaging to prevent losses.", answerOD:"ଧୋଇ, ଚୟନ ଏବଂ ଶୁଖାନ୍ତୁ; ଭଲ ପ୍ୟାକେଜିଙ୍ଗ ବ୍ୟବହାର କରନ୍ତୁ।", bg:"https://images.unsplash.com/photo-1549665574-7d2a6f5f2d05?auto=format&fit=crop&w=1600&q=60"},
+
+  { key:"subsidy", labelEN:"How to get subsidies", labelOD:"ସହାୟତା କିପରି ପାଇବେ?", answerEN:"Check your state agriculture portal and central schemes (PM-KISAN, input subsidies). Register online for eligibility.", answerOD:"ରାଜ୍ୟ କୃଷି ପୋର୍ଟାଲ ଏବଂ ପିଏମ୍-କିସାନ ଯାଞ୍ଚ କରନ୍ତୁ; ଅନଲାଇନ୍ ରେଜିଷ୍ଟର କରନ୍ତୁ।", bg:"https://images.unsplash.com/photo-1573495827000-1b1043b0e4e2?auto=format&fit=crop&w=1600&q=60"},
+
+  { key:"seed", labelEN:"Seed selection", labelOD:"ବୀଜ ଚୟନ", answerEN:"Use certified, disease-free seeds and region-appropriate varieties for higher yields.", answerOD:"ମାନ୍ୟତାପ୍ରାପ୍ତ ଓ ରୋଗମୁକ୍ତ ବୀଜ ବ୍ୟବହାର କରନ୍ତୁ।", bg:"https://images.unsplash.com/photo-1567532931526-973b9b0c36a8?auto=format&fit=crop&w=1600&q=60"},
+
+  { key:"greenhouse", labelEN:"Greenhouse basics", labelOD:"ଗ୍ରୀନହାଉସ ମୂଳଭୂତ", answerEN:"Control ventilation, humidity and temperature; use shade nets and drip irrigation inside.", answerOD:"ଭେଣ୍ଟିଲେସନ, ଆର୍ଦ୍ରତା ଓ ତାପମାତ୍ରା ନିୟନ୍ତ୍ରଣ କରନ୍ତୁ; ଛାୟା ଜାଲ ଏବଂ ଡ୍ରିପ୍ ବ୍ୟବହାର କରନ୍ତୁ।", bg:"https://images.unsplash.com/photo-1520901158484-5d4a5bc4d0b4?auto=format&fit=crop&w=1600&q=60"},
+
+  { key:"drip_irrigation", labelEN:"Drip irrigation benefits", labelOD:"ଡ୍ରିପ୍ ସିଚାଇ ଉପକାରିତା", answerEN:"Saves water, improves root uptake, and increases yield with precise fertigation.", answerOD:"ଜଳ ସଂରକ୍ଷଣ, ମୂଳ ଉପାଧାନ ଉନ୍ନତି ଏବଂ ଫସଲ ଉତ୍ପାଦନ ବଢେ।", bg:"https://images.unsplash.com/photo-1582719478250-3c8e5d2cf70b?auto=format&fit=crop&w=1600&q=60"},
+
+  { key:"pest_control", labelEN:"Safe pest control", labelOD:"ସୁରକ୍ଷିତ ପୋକା ନିୟନ୍ତ୍ରଣ", answerEN:"Use IPM: cultural, mechanical and bio controls first; resort to chemicals when necessary following label rates.", answerOD:"IPM ଅନୁସରଣ କରନ୍ତୁ; ଆବଶ୍ୟକତା ବେଳେ ରସାୟନିକ ବ୍ୟବହାର କରନ୍ତୁ।", bg:"https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=1600&q=60"},
+
+  { key:"herbicide", labelEN:"Herbicide use", labelOD:"ନିରା ବିନାଶକ ପ୍ରୟୋଗ", answerEN:"Use selective herbicides at recommended doses and avoid spraying during wind to prevent drift.", answerOD:"ନିର୍ଦ୍ଦିଷ୍ଟ ଖାତିରେ ଭଲ ମାତ୍ରାରେ ବ୍ୟବହାର କରନ୍ତୁ; ପବନ ଥିବା ସମୟରେ ନ ଛିଟନ୍ତୁ।", bg:"https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1600&q=60"},
+
+  { key:"rotation", labelEN:"Crop rotation benefits", labelOD:"ଫସଲ ପରିବର୍ତ୍ତନ ଉପକାର", answerEN:"Rotating crops reduces pest buildup and improves soil fertility over time.", answerOD:"ଫସଲର ଚକ୍ର ବଦଳାଇବା ପୋକା କମାଏ ଓ ମାଟିର ଉର୍ବରତା ବଢାଏ।", bg:"https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1600&q=60"},
+
+  { key:"spacing", labelEN:"Plant spacing", labelOD:"ରୋପଣ ମାପ", answerEN:"Maintain recommended spacing for each crop to ensure air flow and reduce disease risk.", answerOD:"ପ୍ରତ୍ୟେକ ଫସଲ ପାଇଁ ପ୍ରସ୍ତାବିତ ମାପ ରଖନ୍ତୁ; ଏହା ଆକାଶ ପ୍ରବାହ ଓ ରୋଗ ହ୍ରାସ କରେ।", bg:"https://images.unsplash.com/photo-1518459031867-a89b944bffe2?auto=format&fit=crop&w=1600&q=60"},
+
+  { key:"pruning", labelEN:"Pruning tips", labelOD:"ଛେଡା-ଛାଟ ପରାମର୍ଶ", answerEN:"Prune dead or diseased parts, improve light penetration and air circulation for fruit crops.", answerOD:"ମୃତ/ରୋଗଗ୍ରସ୍ତ ଅଂଶ କାଟନ୍ତୁ; ଫଳ ଗଛମାନଙ୍କ ପାଇଁ ଆଲୋକ ଏବଂ ବାୟୁ ପ୍ରବାହ ବଢାନ୍ତୁ।", bg:"https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=1600&q=60"},
+
+  { key:"disease_detection", labelEN:"Detect disease (image)", labelOD:"ରୋଗ ଚିହ୍ନଟ (ଚିତ୍ର)", answerEN:"Upload a clear leaf image to an expert or use mobile apps; look for spots, discoloration & wilting.", answerOD:"ସ୍ପଷ୍ଟ ପତ୍ର ଚିତ୍ର ଦିଅନ୍ତୁ; ଦାଗ, ରଙ୍ଗ ବଦଳା, ଶୀଗ୍ର ମୃତ୍ୟୁ ଖୋଜନ୍ତୁ।", bg:"https://images.unsplash.com/photo-1545239351-1141bd82e8a6?auto=format&fit=crop&w=1600&q=60"},
+
+  { key:"planting_time", labelEN:"Best planting time", labelOD:"ବିଆ ଦେବାର ସମୟ", answerEN:"Plant at recommended season for your region; avoid late or very early sowing.", answerOD:"ଆପଣଙ୍କ ଅଞ୍ଚଳ ପାଇଁ ଅନୁଶାସନିକ ସମୟରେ ବିଆ ଦିଅନ୍ତୁ; ଅତି ଜଳଦୀ କିମ୍ବା ଅତି ବିଳମ୍ବ ନ ଦିଅନ୍ତୁ।", bg:"https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=1600&q=60"},
+
+  { key:"temperature", labelEN:"Temperature protection", labelOD:"ତାପମାତ୍ରାରୁ ସୁରକ୍ଷା", answerEN:"Use shade nets, mulching or sprinkler cooling during heat waves; insulate seedlings during cold spells.", answerOD:"ତାପମାତ୍ରା ବଢିଲେ ଛାୟା ଜାଲ/ମାଲ୍ଚ/ସ୍ପ୍ରିଙ୍କଲର ବ୍ୟବହାର କରନ୍ତୁ; ଠଣ୍ଡରେ ଚାଇଲ୍ଡମୁକ୍ତ ରଖନ୍ତୁ।", bg:"https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=1600&q=60"},
+
+  { key:"rainwater", labelEN:"Rainwater harvesting", labelOD:"ବର୍ଷାଜଳ ସଂଗ୍ରହ", answerEN:"Collect rainwater in ponds/tanks and use for irrigation during dry spells.", answerOD:"ପୋଖରି/ଟ୍ୟାଙ୍କରେ ବର୍ଷାଜଳ ସଂଗ୍ରହ କରନ୍ତୁ, ଶୁଖା ସମୟରେ ବ୍ୟବହାର କରନ୍ତୁ।", bg:"https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=1600&q=60"},
+
+  { key:"orchard", labelEN:"Orchard management", labelOD:"ବଗିଚା ପରିଚାଳନା", answerEN:"Prune, feed and protect fruit trees from pests; maintain soil moisture and mulching.", answerOD:"ଗଛଗୁଡିକୁ ଛେଡା-ଛାଟ, ପୋଷଣ ଦିଅନ୍ତୁ; ପୋକାରୁ ସୁରକ୍ଷିତ ରଖନ୍ତୁ।", bg:"https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=1600&q=60"}
+];
+
+const quickGrid = document.getElementById('quickGrid');
+const chatLog = document.getElementById('chatLog');
+const langToggle = document.getElementById('langToggle');
+
+let odiaMode = false;
+
+// Populate quick query buttons (30)
+topics.forEach((t, i) => {
+  const btn = document.createElement('button');
+  btn.className = 'quickBtn';
+  btn.dataset.key = t.key;
+
+  const tag = document.createElement('div');
+  tag.className = 'tag';
+  tag.textContent = (i+1);
+
+  const txt = document.createElement('div');
+  txt.className = 'text';
+  txt.innerHTML = `<div class="en">${t.labelEN}</div><div class="odia" style="display:none;font-size:0.86rem;margin-top:4px">${t.labelOD}</div>`;
+
+  btn.appendChild(tag);
+  btn.appendChild(txt);
+  btn.addEventListener('click', ()=> onQuickTap(t, btn));
+  quickGrid.appendChild(btn);
+});
+
+// On quick button tapped
+function onQuickTap(topicObj, btnEl){
+  // visual active pill
+  document.querySelectorAll('.quickBtn').forEach(b=>b.classList.remove('activePill'));
+  btnEl.classList.add('activePill');
+
+  // show user bubble (label in selected language)
+  const label = odiaMode ? topicObj.labelOD : topicObj.labelEN;
+  appendBubble(label, 'user');
+
+  // after delay show bot response
+  setTimeout(()=>{
+    const ans = odiaMode ? topicObj.answerOD : topicObj.answerEN;
+    appendBubble(ans, 'bot', odiaMode);
+    // change background image
+    if(topicObj.bg){
+      document.body.style.background = `url('${topicObj.bg}') center/cover no-repeat fixed`;
     }
+  }, 600);
+}
 
-    function getAIResponse(message) {
-      // Return a random farming tip
-      const index = Math.floor(Math.random() * aiResponses.length);
-      return aiResponses[index];
-    }
+// append bubble
+function appendBubble(text, who='bot', od=false){
+  const d = document.createElement('div');
+  d.className = 'bubble ' + (who==='user' ? 'user' : 'bot');
+  if(od && who==='bot'){ d.classList.add('odiaText'); }
+  d.textContent = text;
+  chatLog.appendChild(d);
+  chatLog.scrollTop = chatLog.scrollHeight;
+}
 
-    sendBtn.addEventListener("click", () => {
-      const message = userInput.value.trim();
-      if(!message) return;
-      addMessage(message, "user");
-      userInput.value = "";
-      setTimeout(() => {
-        const response = getAIResponse(message);
-        addMessage(response, "ai");
-      }, 500);
-    });
+// language toggle
+langToggle.addEventListener('click', ()=>{
+  odiaMode = !odiaMode;
+  langToggle.textContent = odiaMode ? 'English / ଇଂରାଜୀ' : 'Odia / ଓଡ଼ିଆ';
 
-    userInput.addEventListener("keypress", (e) => {
-      if(e.key === "Enter") sendBtn.click();
-    });
+  // toggle labels shown in quick buttons
+  document.querySelectorAll('.quickBtn').forEach(b=>{
+    const en = b.querySelector('.en'); const od = b.querySelector('.odia');
+    if(odiaMode){ en.style.display='none'; od.style.display='block'; } else { en.style.display='block'; od.style.display='none'; }
+  });
 
-    detectBtn.addEventListener("click", () => {
-      const file = cropImageInput.files[0];
-      if(!file) { alert("Please select an image"); return; }
+  // change existing bot bubbles to match language? (leave past conversation as-is)
+});
 
-      diseaseResult.textContent = "Detecting disease...";
+// clear chat
+function clearChat(){
+  chatLog.innerHTML = '<div class="bubble bot">👋 Hello! Tap any quick query on the right to get instant advice in English or Odia.</div>';
+  document.querySelectorAll('.quickBtn').forEach(b=>b.classList.remove('activePill'));
+}
 
-      // Placeholder for API
-      setTimeout(() => {
-        diseaseResult.textContent = "Disease detected: Leaf Blight (simulated)";
-      }, 1500);
-    });
-
-    langToggle.addEventListener("click", () => {
-      isEnglish = !isEnglish;
-      if(isEnglish){
-        langToggle.textContent = "ଓଡିଆ";
-        chatTitle.textContent = "AI Chat Assistant";
-        uploadTitle.textContent = "Or upload crop image for disease detection:";
-        sendBtn.textContent = "Send";
-        detectBtn.textContent = "Detect Disease";
-      } else {
-        langToggle.textContent = "ENGLISH";
-        chatTitle.textContent = "ଓଡ଼ିଆ AI ଚାଟ୍ ସହାୟକ";
-        uploadTitle.textContent = "କିସାନ ଫସଲ ରୋଗ ଚିହ୍ନଟ ପାଇଁ ଚିତ୍ର ଅପଲୋଡ୍ କରନ୍ତୁ:";
-        sendBtn.textContent = "ପଠାନ୍ତୁ";
-        detectBtn.textContent = "ରୋଗ ଚିହ୍ନଟ କରନ୍ତୁ";
-      }
-    });
-
-    themeBtn.addEventListener("click", () => {
-      document.body.classList.toggle("light-mode");
-      themeBtn.textContent = document.body.classList.contains("light-mode") ? "☀️" : "🌙";
-    });
-  </script>
-
+// initial: show all labels in English
+document.addEventListener('DOMContentLoaded', ()=>{
+  // nothing else
+});
+</script>
 </body>
 </html>
